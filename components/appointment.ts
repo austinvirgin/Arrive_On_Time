@@ -1,28 +1,47 @@
 // Code to handle internally making components
-
+export namespace Appointment{
+    // using namespace above bundles this below type with the Appointment namespace
+    export type Repeat =
+    {
+        days: string[], // mon,tue,wed,thu,fri,sat,sun
+        period: number, // period between repeats: repeat every 1 week, or every 2 weeks, etc.
+    }
+}
 
 export class Appointment{
+    // everything public for now
     public name: string;
     public address: string;
-    public date: any;
+    public date: any; // this may later be a specific dateTime instance or something related.
     public time: any;
-    public repeat: boolean;
-    public transit_time = 5.00;
-
-    constructor(name: string, address: string, date: any, time: any, repeat: boolean){
+    public repeat: Appointment.Repeat | null; // allows a repeat to be set, or default to no repeat
+    public transit_time: number; // set from a calculation, can be updated as needed.
+    public transport_type: string; // string to pass to Google Maps API
+    constructor(name: string, address: string, date: any, time: any, repeat: Appointment.Repeat | null){
         this.name = name;
         this.address = address;
         this.date = date;
         this.time = time;
-        this.repeat = repeat;
-        this.transit_time = 10; // 10 minute transit time for now
+        if (repeat){
+            // example declaration of a Repeat
+            // const repeat: Appointment.Repeat = {
+            //     days: ['mon','wed','fri'], // monday, wednesday, friday
+            //     period: 1, // repeat every week
+            // };
+            this.repeat = repeat;
+        }
+        else
+        {
+            this.repeat = null;
+        }
+        this.transit_time = 10; // assume a 10 minute transit time for now
+        this.transport_type = "walking"; // string to pass to Google Maps API
     };
 
     getSummary(): string{
         return `${this.name} on ${this.date} at ${this.time} at ${this.address}`;
     }
-};
-
-export default function CreateAppointment() {
-    return new Appointment("test", "nowhere", 11, 11, false);
+    getAddress(): string{
+        return this.address;
+    }
 };

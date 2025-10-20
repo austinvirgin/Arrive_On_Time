@@ -3,11 +3,18 @@ import { useState } from "react";
 import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 
 export default function Index() {
-  const [appts, makeAppt] = useState<Appointment[]>([]); // initialize an empty list of appointments
+  const [appts, makeAppt] = useState<Appointment[]>([]); // initialize an empty list of appointments. Use makeAppt() to modify the list
   const AddAppt = () => {
-    // how to add appointment to the list
-    const newAppt = new Appointment("class","STC", 'Oct 11', '11am', false); // appointment info here
-    makeAppt(prev => [...prev, newAppt]); // append to end of list
+    // This function adds an appointment to the list
+    // define its repeat pattern, or instead make repeat = null if there is no repeat to this appointment
+    const repeat: Appointment.Repeat = {
+      days:['mon','wed','fri'], // days of the week this appointment happens
+      period:1, // repeat every 1 week
+    }
+    // make new appointment
+    const newAppt = new Appointment("class","STC", 'Oct 11', '11am', repeat); // appointment info here
+    // Overwrite previous list to now be the previous list with 1 more appointment at the end
+    makeAppt(prev => [...prev, newAppt]); 
   }
   
   return (
@@ -24,6 +31,9 @@ export default function Index() {
         </Pressable>
       </View> 
       <Text>Known Appointments:</Text>
+      {// below is how to display each item in the list. Define data = {list}, 
+        // renderItem expects a function with 1 parameter, representing the current item of the list
+      }
       <FlatList
         data={appts}
         renderItem={({ item }) => (
