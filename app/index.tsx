@@ -6,15 +6,14 @@ export default function Index() {
   const [appts, makeAppt] = useState<Appointment[]>([]); // initialize an empty list of appointments. Use makeAppt() to modify the list
   const AddAppt = () => {
     // This function adds an appointment to the list
+
     // define its repeat pattern, or instead make repeat = null if there is no repeat to this appointment
-    const repeat: Appointment.Repeat = {
+    const repeats: Appointment.Repeat = {
       days:['mon','wed','fri'], // days of the week this appointment happens
       period:1, // repeat every 1 week
     }
-    // make new appointment
-    const newAppt = new Appointment("class","STC", 'Oct 11', '11am', repeat); // appointment info here
-    // Overwrite previous list to now be the previous list with 1 more appointment at the end
-    makeAppt(prev => [...prev, newAppt]); 
+    // make new appointment (including supplying the function that allows for adding an appointment to the appts list: "makeAppt")
+    const newAppt = new Appointment("class","STC", 'Oct 11', '11am', repeats, makeAppt); // appointment info here
   }
   
   return (
@@ -32,7 +31,7 @@ export default function Index() {
       </View> 
       <Text>Known Appointments:</Text>
       {// below is how to display each item in the list. Define data = {list}, 
-        // renderItem expects a function with 1 parameter, representing the current item of the list
+        // renderItem expects a function with 1 parameter, a placeholder name that will represent the current item of the list
       }
       <FlatList
         data={appts}

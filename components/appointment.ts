@@ -17,7 +17,7 @@ export class Appointment{
     public repeat: Appointment.Repeat | null; // allows a repeat to be set, or default to no repeat
     public transit_time: number; // set from a calculation, can be updated as needed.
     public transport_type: string; // string to pass to Google Maps API
-    constructor(name: string, address: string, date: any, time: any, repeat: Appointment.Repeat | null){
+    constructor(name: string, address: string, date: any, time: any, repeat: Appointment.Repeat | null, appointmentsList_function: React.Dispatch<React.SetStateAction<Appointment[]>>){
         this.name = name;
         this.address = address;
         this.date = date;
@@ -36,6 +36,9 @@ export class Appointment{
         }
         this.transit_time = 10; // assume a 10 minute transit time for now
         this.transport_type = "walking"; // string to pass to Google Maps API
+
+        // Overwrite previous list to now be the previous list with 1 more appointment at the end
+        appointmentsList_function(prev => [...prev, this]);
     };
 
     getSummary(): string{
