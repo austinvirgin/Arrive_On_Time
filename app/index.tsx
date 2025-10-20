@@ -1,6 +1,6 @@
 import { Appointment } from '@/components/appointment';
 import { useState } from "react";
-import { FlatList, Pressable, StyleSheet, SafeAreaView, StyleSheet, Text, View } from "react-native";
+import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 import Menubar from "../components/Menubar";
 
 export default function Index() {
@@ -18,7 +18,7 @@ export default function Index() {
   }
   
   return (
-    <SafeAreaView style={styles.root}>
+    <View style={styles.root}>
       <Menubar menuTitle="Date/Time:" />
       <View style={styles.center}>
         <View style ={styles.buttonContainer}>
@@ -37,7 +37,7 @@ export default function Index() {
         )}
       />
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 
