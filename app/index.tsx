@@ -1,6 +1,7 @@
 import { Appointment } from '@/components/appointment';
 import { useState } from "react";
-import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
+import { FlatList, Pressable, StyleSheet, SafeAreaView, StyleSheet, Text, View } from "react-native";
+import Menubar from "../components/Menubar";
 
 export default function Index() {
   const [appts, makeAppt] = useState<Appointment[]>([]); // initialize an empty list of appointments. Use makeAppt() to modify the list
@@ -17,14 +18,10 @@ export default function Index() {
   }
   
   return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <View style ={styles.buttonContainer}>
+    <SafeAreaView style={styles.root}>
+      <Menubar menuTitle="Date/Time:" />
+      <View style={styles.center}>
+        <View style ={styles.buttonContainer}>
         <Pressable style = {styles.button} onPress={AddAppt}>
           <Text style={styles.buttonLabel}>Create Appointment</Text>
         </Pressable>
@@ -39,12 +36,15 @@ export default function Index() {
           <Text style={{ fontSize: 18 }}>{item.getSummary()}</Text>
         )}
       />
-    </View>
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
- buttonContainer: {
+  root: { flex: 1, backgroundColor: "#fff" },
+  center: { flex: 1, justifyContent: "center", alignItems: "center" },
+  buttonContainer: {
     marginVertical: 20,
     width: 320,
     height: 68,
