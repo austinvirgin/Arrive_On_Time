@@ -121,7 +121,7 @@ export default function CreateAppointment() {
           </View>
 
           <TouchableOpacity style={styles.saveButton}>
-            <Text style={styles.saveText}>Save (not functional)</Text>
+            <Text style={styles.saveText}>Save</Text>
           </TouchableOpacity>
         </ScrollView>
 
