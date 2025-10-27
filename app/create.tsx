@@ -122,7 +122,7 @@ export default function CreateAppointment() {
           </View>
 
           <TouchableOpacity style={styles.saveButton} onPress={() => {
-              addAppt(name, address); // make an appointment with this screen's data
+              addAppt(name, address, date, arrivalTime + arrivalPeriod.toLowerCase(), selectedDays); // make an appointment with this screen's data
               router.back(); // then go back to the main index.tsx screen
             }}>
             <Text style={styles.saveText}>Save</Text>
