@@ -43,6 +43,13 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "0013c313-7b35-4a96-a2f6-aeb725affe78"
+      }
+    },
+    "owner": "cameronharward"
   }
 }
