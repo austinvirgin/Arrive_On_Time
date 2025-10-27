@@ -1,17 +1,17 @@
+import { useAppointmentContext } from "@/context/AppointmentContext";
+import { Stack, router } from "expo-router";
 import React, { useState } from "react";
 import {
-  SafeAreaView,
-  View,
-  Text,
-  StyleSheet,
-  TextInput,
-  TouchableOpacity,
-  ScrollView,
+  FlatList,
   Modal,
   Pressable,
-  FlatList,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from "react-native";
-import { Stack } from "expo-router";
 
 const DAYS = [
   { id: "sun", label: "Sunday" },
@@ -24,6 +24,7 @@ const DAYS = [
 ];
 
 export default function CreateAppointment() {
+  const { addAppt } = useAppointmentContext(); // this allows persistent appointment data across screens
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
   const [arrivalTime, setArrivalTime] = useState("");
@@ -66,7 +67,7 @@ export default function CreateAppointment() {
   return (
     <>
       <Stack.Screen options={{ title: "Create Appointment" }} />
-      <SafeAreaView style={styles.safe}>
+      <View style={styles.safe}>
         <ScrollView contentContainerStyle={styles.container}>
           <View style={styles.inputBox}>
             <Text style={styles.label}>Appointment Name:</Text>
@@ -120,7 +121,10 @@ export default function CreateAppointment() {
             <TextInput value={date} onChangeText={setDate} placeholder="Select date" style={styles.input} />
           </View>
 
-          <TouchableOpacity style={styles.saveButton}>
+          <TouchableOpacity style={styles.saveButton} onPress={() => {
+              addAppt(name, address); // make an appointment with this screen's data
+              router.back(); // then go back to the main index.tsx screen
+            }}>
             <Text style={styles.saveText}>Save</Text>
           </TouchableOpacity>
         </ScrollView>
@@ -160,7 +164,7 @@ export default function CreateAppointment() {
             </View>
           </View>
         </Modal>
-      </SafeAreaView>
+      </View>
     </>
   );
 }
