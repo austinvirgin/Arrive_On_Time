@@ -1,10 +1,18 @@
 import { Appointment } from '@/components/appointment';
+import { NotificationService } from '@/components/NotificationService';
 import { useState } from "react";
 import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 import Menubar from "../components/Menubar";
 
 export default function Index() {
   const [appts, makeAppt] = useState<Appointment[]>([]); // initialize an empty list of appointments. Use makeAppt() to modify the list
+  const service = new NotificationService();
+  const sendNotif = async () => {
+    await service.sendPush(
+    "Greetings!",
+    "This notification was sent with one call."
+)
+  }
   const AddAppt = () => {
     // This function adds an appointment to the list
 
