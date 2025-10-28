@@ -1,13 +1,15 @@
 import { Appointment } from '@/components/appointment';
+import Startup from "@/components/Startup";
 import { useState } from "react";
 import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 import Menubar from "../components/Menubar";
 
+var appointmentsList : Appointment[] = []; // initialize an empty list of appointments
+
 export default function Index() {
+  Startup();
   const [appts, makeAppt] = useState<Appointment[]>([]); // initialize an empty list of appointments. Use makeAppt() to modify the list
   const AddAppt = () => {
-    // This function adds an appointment to the list
-
     // define its repeat pattern, or instead make repeat = null if there is no repeat to this appointment
     const repeats: Appointment.Repeat = {
       days:['mon','wed','fri'], // days of the week this appointment happens
@@ -15,6 +17,9 @@ export default function Index() {
     }
     // make new appointment (including supplying the function that allows for adding an appointment to the appts list: "makeAppt")
     const newAppt = new Appointment("class","STC", 'Oct 11', '11am', repeats, makeAppt); // appointment info here
+    // add the new appointment to a list of appointments, then save the new list locally
+    appointmentsList.push(newAppt);
+    localStorage.setItem("appointments", JSON.stringify(appointmentsList));
   }
   
   return (
