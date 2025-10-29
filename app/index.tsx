@@ -1,22 +1,31 @@
-import React from "react";
-import { SafeAreaView, View, Text, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
+import { Appointment } from '@/components/appointment';
+import { useAppointmentContext } from '@/context/AppointmentContext';
 import { useRouter } from "expo-router";
+import React from "react";
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export default function Index() {
   const router = useRouter();
-
+  const { appointments } = useAppointmentContext(); // this enables persistent appointment data across screens
   return (
-    <SafeAreaView style={styles.safe}>
+    <View style={styles.safe}>
       <ScrollView contentContainerStyle={styles.container}>
-        <View style={styles.listSpace}>
-          <Text style={styles.hintText}>Appointments will show here</Text>
-        </View>
+        <Text style = {styles.hintText}>Known Appointments:</Text>
+        {
+          appointments.map((item: Appointment, index: number) => (
+            <View key = {index}>
+              <Text>{item.getSummary()}</Text>
+            </View>
+          ))
+        }
       </ScrollView>
 
-      <TouchableOpacity style={styles.plusButton} activeOpacity={0.8} onPress={() => router.push("/create")}>
+      <TouchableOpacity style={styles.plusButton} activeOpacity={0.8} onPress={() => {
+          router.push("/create");
+        }}>
         <Text style={styles.plusText}>+</Text>
       </TouchableOpacity>
-    </SafeAreaView>
+    </View>
   );
 }
 
