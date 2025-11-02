@@ -2,6 +2,7 @@ import { Appointment } from '@/components/appointment';
 import { useState } from "react";
 import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 import Menubar from "../components/Menubar";
+import { calculateTime } from '../backend/backend.js'
 
 export default function Index() {
   const [appts, makeAppt] = useState<Appointment[]>([]); // initialize an empty list of appointments. Use makeAppt() to modify the list
