@@ -1,4 +1,4 @@
-# Welcome to your Expo app 👋
+# Arrive on Time: an appointment notification app
 
 This is an app that allows the user to put in an appointment into the app, and the appointment's address. Then, the app will notify the user when they should depart to arrive to their appointment on time. 
 This app uses the Google Maps API and React Native with Expo to allow the app to be cross-platform.
