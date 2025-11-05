@@ -15,7 +15,7 @@ export class Appointment{
     public address: string;
     public date: any; // this may later be a specific dateTime instance or something related.
     public time: any;
-    public repeat: Appointment.Repeat | null; // allows a repeat to be set, or default to no repeat
+    public repeat: Appointment.Repeat | null; // allows a repeat to be set
     public transit_time: number; // set from a calculation, can be updated as needed.
     public transport_type: string; // string to pass to Google Maps API
     constructor(name: string, address: string, date: any, time: any, repeat: Appointment.Repeat | null, appointmentsList_function: React.Dispatch<React.SetStateAction<Appointment[]>>){
@@ -23,18 +23,12 @@ export class Appointment{
         this.address = address;
         this.date = date;
         this.time = time;
-        if (repeat){
-            // example declaration of a Repeat
-            // const repeat: Appointment.Repeat = {
-            //     days: ['mon','wed','fri'], // monday, wednesday, friday
-            //     period: 1, // repeat every week
-            // };
-            this.repeat = repeat;
-        }
-        else
-        {
-            this.repeat = null;
-        }
+        // example declaration of a Repeat
+        // const repeat: Appointment.Repeat = {
+        //     days: ['mon','wed','fri'], // monday, wednesday, friday
+        //     period: 1, // repeat every week
+        // };
+        this.repeat = repeat;
         this.transit_time = 10; // assume a 10 minute transit time for now
         this.transport_type = "walking"; // string to pass to Google Maps API
 
@@ -42,9 +36,12 @@ export class Appointment{
         appointmentsList_function(prev => [...prev, this]);
     };
 
+    // a string that contains relevant information about this appointment
     getSummary(): string{
-        return `${this.name} on ${this.date} at ${this.time} at ${this.address}`;
+        return `${this.name} at ${this.address} on ${this.date} at ${this.time}${this.repeat? " every " + this.repeat.days.toString() : ""}`;
     }
+
+    // example of how to get a specific attribute from this class
     getAddress(): string{
         return this.address;
     }

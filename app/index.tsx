@@ -1,8 +1,9 @@
 import { Appointment } from '@/components/appointment';
 import Startup from "@/components/Startup";
-import { useState } from "react";
-import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
-import Menubar from "../components/Menubar";
+import { useAppointmentContext } from '@/context/AppointmentContext';
+import { useRouter } from "expo-router";
+import React, { useState } from "react";
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 var appointmentsList : Appointment[] = []; // initialize an empty list of appointments
 
@@ -22,56 +23,64 @@ export default function Index() {
     localStorage.setItem("appointments", JSON.stringify(appointmentsList));
   }
   
+  const router = useRouter();
+  const { appointments } = useAppointmentContext(); // this enables persistent appointment data across screens
   return (
-    <View style={styles.root}>
-      <Menubar menuTitle="Date/Time:" />
-      <View style={styles.center}>
-        <View style ={styles.buttonContainer}>
-        <Pressable style = {styles.button} onPress={AddAppt}>
-          <Text style={styles.buttonLabel}>Create Appointment</Text>
-        </Pressable>
-      </View> 
-      <Text>Known Appointments:</Text>
-      {// below is how to display each item in the list. Define data = {list}, 
-        // renderItem expects a function with 1 parameter, a placeholder name that will represent the current item of the list
-      }
-      <FlatList
-        data={appts}
-        renderItem={({ item }) => (
-          <Text style={{ fontSize: 18 }}>{item.getSummary()}</Text>
-        )}
-      />
-      </View>
+    <View style={styles.safe}>
+      <ScrollView contentContainerStyle={styles.container}>
+        <Text style = {styles.hintText}>Known Appointments:</Text>
+        {
+          appointments.map((item: Appointment, index: number) => (
+            <View key = {index}>
+              <Text>{item.getSummary()}</Text>
+            </View>
+          ))
+        }
+      </ScrollView>
+
+      <TouchableOpacity style={styles.plusButton} activeOpacity={0.8} onPress={() => {
+          router.push("/create");
+        }}>
+        <Text style={styles.plusText}>+</Text>
+      </TouchableOpacity>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: "#fff" },
-  center: { flex: 1, justifyContent: "center", alignItems: "center" },
-  buttonContainer: {
-    marginVertical: 20,
-    width: 320,
-    height: 68,
-    marginHorizontal: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 3,
+  safe: { flex: 1, backgroundColor: "#efefef" },
+  container: {
+    padding: 24,
+    paddingBottom: 140
   },
-  button: {
-    width: '100%',
-    height: '100%',
-    backgroundColor: '#fff',
-    borderWidth: 4, 
-    borderColor: '#3dff81ff', 
-    borderRadius: 18,
-    fontSize: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexDirection: 'row',
+  listSpace: {
+    height: 600,
+    backgroundColor: "transparent",
+    justifyContent: "center",
+    alignItems: "center"
   },
-  buttonLabel: {
-    color: '#25292e',
-    fontSize: 16,
+  hintText: {
+    color: "#bbb"
   },
+  plusButton: {
+    position: "absolute",
+    right: 28,
+    bottom: 28,
+    width: 56,
+    height: 56,
+    borderRadius: 10,
+    backgroundColor: "#6f6f6f",
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+    elevation: 6
+  },
+  plusText: {
+    color: "#fff",
+    fontSize: 28,
+    lineHeight: 28
+  }
 });
