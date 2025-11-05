@@ -10,18 +10,6 @@ var appointmentsList : Appointment[] = []; // initialize an empty list of appoin
 export default function Index() {
   Startup();
   const [appts, makeAppt] = useState<Appointment[]>([]); // initialize an empty list of appointments. Use makeAppt() to modify the list
-  const AddAppt = () => {
-    // define its repeat pattern, or instead make repeat = null if there is no repeat to this appointment
-    const repeats: Appointment.Repeat = {
-      days:['mon','wed','fri'], // days of the week this appointment happens
-      period:1, // repeat every 1 week
-    }
-    // make new appointment (including supplying the function that allows for adding an appointment to the appts list: "makeAppt")
-    const newAppt = new Appointment("class","STC", 'Oct 11', '11am', repeats, makeAppt); // appointment info here
-    // add the new appointment to a list of appointments, then save the new list locally
-    appointmentsList.push(newAppt);
-    localStorage.setItem("appointments", JSON.stringify(appointmentsList));
-  }
   
   const router = useRouter();
   const { appointments } = useAppointmentContext(); // this enables persistent appointment data across screens
