@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   SafeAreaView,
   View,
@@ -10,6 +10,10 @@ import {
   Modal,
   Pressable,
   FlatList,
+  KeyboardAvoidingView,
+  Platform,
+  Keyboard,
+  TouchableWithoutFeedback,
 } from "react-native";
 import { Stack } from "expo-router";
 
@@ -23,6 +27,14 @@ const DAYS = [
   { id: "sat", label: "Saturday" },
 ];
 
+const TRANSPORT_OPTIONS = [
+  { id: "driving", label: "Drive" },
+  { id: "transit", label: "Public transport" },
+  { id: "walking", label: "Walk" },
+  { id: "bicycling", label: "Bicycle" },
+  { id: "flight", label: "Fly" },
+];
+
 export default function CreateAppointment() {
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
@@ -32,8 +44,10 @@ export default function CreateAppointment() {
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
   const [daysModalVisible, setDaysModalVisible] = useState(false);
   const [periodModalVisible, setPeriodModalVisible] = useState(false);
-  const [estimatedTravelTime, setEstimatedTravelTime] = useState("");
+  const [transportModalVisible, setTransportModalVisible] = useState(false);
+  const [transportMethod, setTransportMethod] = useState<string>("");
   const [date, setDate] = useState("");
+  const scrollRef = useRef<ScrollView | null>(null);
 
   const toggleDay = (dayId: string) => {
     if (selectedDays.includes(dayId)) {
@@ -58,109 +72,265 @@ export default function CreateAppointment() {
     );
   };
 
+  const renderTransportItem = ({ item }: { item: { id: string; label: string } }) => {
+    const selected = transportMethod === item.id;
+    return (
+      <Pressable
+        onPress={() => {
+          setTransportMethod(item.id);
+          setTransportModalVisible(false);
+        }}
+        style={[styles.optionRow, selected && styles.optionRowSelected]}
+      >
+        <View style={[styles.checkboxSmall, selected && styles.checkboxSmallChecked]}>
+          {selected && <Text style={styles.checkboxSmallTick}>✓</Text>}
+        </View>
+        <Text style={styles.optionLabel}>{item.label}</Text>
+      </Pressable>
+    );
+  };
+
   const selectedDaysLabel =
-    selectedDays.length === 0 ? "None" : DAYS.filter((d) => selectedDays.includes(d.id))
-      .map((d) => d.label)
-      .join(", ");
+    selectedDays.length === 0
+      ? "None"
+      : DAYS.filter((d) => selectedDays.includes(d.id))
+          .map((d) => d.label)
+          .join(", ");
+
+  const selectedTransportLabel =
+    transportMethod === ""
+      ? "Select transport"
+      : TRANSPORT_OPTIONS.find((t) => t.id === transportMethod)?.label || "Select transport";
+
+  const keyboardVerticalOffset = Platform.OS === "ios" ? 100 : 80;
 
   return (
     <>
       <Stack.Screen options={{ title: "Create Appointment" }} />
-      <SafeAreaView style={styles.safe}>
-        <ScrollView contentContainerStyle={styles.container}>
-          <View style={styles.inputBox}>
-            <Text style={styles.label}>Appointment Name:</Text>
-            <TextInput value={name} onChangeText={setName} placeholder="Enter appointment name" style={styles.input} />
-          </View>
-
-          <View style={styles.inputBox}>
-            <Text style={styles.label}>Address:</Text>
-            <TextInput value={address} onChangeText={setAddress} placeholder="Enter address" style={styles.input} />
-          </View>
-
-          <View style={styles.inputBox}>
-            <Text style={styles.label}>Arrival time:</Text>
-            <View style={styles.row}>
-              <TextInput
-                value={arrivalTime}
-                onChangeText={setArrivalTime}
-                placeholder="e.g. 12:15"
-                style={[styles.input, { flex: 1 }]}
-              />
-              <TouchableOpacity style={styles.periodDropdown} onPress={() => setPeriodModalVisible(true)}>
-                <Text style={styles.dropdownText}>{arrivalPeriod || "AM/PM"}</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-
-          <View style={styles.row}>
-            <Pressable onPress={() => { setIsRepeating((p) => !p); if (isRepeating) setSelectedDays([]); }} style={styles.radioRow}>
-              <View style={[styles.radioCircle, isRepeating && styles.radioCircleChecked]}>
-                {isRepeating && <View style={styles.radioDot} />}
-              </View>
-              <Text style={styles.radioLabel}>Repeating</Text>
-            </Pressable>
-
-            <TouchableOpacity
-              style={[styles.dropdown, !isRepeating && styles.dropdownDisabled]}
-              onPress={() => { if (isRepeating) setDaysModalVisible(true); }}
-              activeOpacity={isRepeating ? 0.7 : 1}
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={keyboardVerticalOffset}
+      >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <SafeAreaView style={styles.safe}>
+            <ScrollView
+              ref={scrollRef}
+              contentContainerStyle={styles.container}
+              keyboardShouldPersistTaps="handled"
+              keyboardDismissMode="on-drag"
             >
-              <Text style={styles.dropdownText}>{isRepeating ? selectedDaysLabel : "Off"}</Text>
-            </TouchableOpacity>
-          </View>
+              <View style={styles.inputBox}>
+                <Text style={styles.label}>Appointment Name:</Text>
+                <TextInput
+                  value={name}
+                  onChangeText={setName}
+                  placeholder="Enter appointment name"
+                  style={styles.input}
+                  returnKeyType="next"
+                />
+              </View>
 
-          <View style={styles.inputBox}>
-            <Text style={styles.label}>Estimated travel time:</Text>
-            <TextInput value={estimatedTravelTime} onChangeText={setEstimatedTravelTime} placeholder="e.g. 15 min" style={styles.input} />
-          </View>
+              <View style={styles.inputBox}>
+                <Text style={styles.label}>Address:</Text>
+                <TextInput
+                  value={address}
+                  onChangeText={setAddress}
+                  placeholder="Enter address"
+                  style={styles.input}
+                  returnKeyType="next"
+                />
+              </View>
 
-          <View style={styles.inputBox}>
-            <Text style={styles.label}>Date:</Text>
-            <TextInput value={date} onChangeText={setDate} placeholder="Select date" style={styles.input} />
-          </View>
+              <View style={styles.inputBox}>
+                <Text style={styles.label}>Arrival time:</Text>
+                <View style={styles.row}>
+                  <TextInput
+                    value={arrivalTime}
+                    onChangeText={setArrivalTime}
+                    placeholder="e.g. 12:15"
+                    style={[styles.input, { flex: 1 }]}
+                    returnKeyType="next"
+                  />
+                  <TouchableOpacity
+                    style={styles.periodDropdown}
+                    onPress={() => setPeriodModalVisible(true)}
+                  >
+                    <Text style={styles.dropdownText}>{arrivalPeriod || "AM/PM"}</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
 
-          <TouchableOpacity style={styles.saveButton}>
-            <Text style={styles.saveText}>Save</Text>
-          </TouchableOpacity>
-        </ScrollView>
+              <View style={styles.row}>
+                <Pressable
+                  onPress={() => {
+                    setIsRepeating((p) => !p);
+                    if (isRepeating) setSelectedDays([]);
+                  }}
+                  style={styles.radioRow}
+                >
+                  <View
+                    style={[
+                      styles.radioCircle,
+                      isRepeating && styles.radioCircleChecked,
+                    ]}
+                  >
+                    {isRepeating && <View style={styles.radioDot} />}
+                  </View>
+                  <Text style={styles.radioLabel}>Repeating</Text>
+                </Pressable>
 
-        <Modal visible={daysModalVisible} animationType="slide" transparent>
-          <View style={styles.modalBackdrop}>
-            <View style={styles.modalContent}>
-              <Text style={styles.modalTitle}>Repeat on</Text>
-              <FlatList data={DAYS} keyExtractor={(i) => i.id} renderItem={renderDayItem} />
-              <View style={styles.modalButtons}>
-                <TouchableOpacity onPress={() => { setDaysModalVisible(false); }} style={styles.modalButton}>
-                  <Text style={styles.modalButtonText}>Done</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => { setSelectedDays([]); setDaysModalVisible(false); }} style={[styles.modalButton, styles.modalButtonSecondary]}>
-                  <Text style={[styles.modalButtonText, styles.modalButtonTextSecondary]}>Clear</Text>
+                <TouchableOpacity
+                  style={[styles.dropdown, !isRepeating && styles.dropdownDisabled]}
+                  onPress={() => {
+                    if (isRepeating) setDaysModalVisible(true);
+                  }}
+                  activeOpacity={isRepeating ? 0.7 : 1}
+                >
+                  <Text style={styles.dropdownText}>
+                    {isRepeating ? selectedDaysLabel : "Off"}
+                  </Text>
                 </TouchableOpacity>
               </View>
-            </View>
-          </View>
-        </Modal>
 
-        <Modal visible={periodModalVisible} animationType="fade" transparent>
-          <View style={styles.modalBackdrop}>
-            <View style={styles.modalContentSmall}>
-              <Text style={styles.modalTitle}>AM / PM</Text>
-              <Pressable onPress={() => { setArrivalPeriod("AM"); setPeriodModalVisible(false); }} style={styles.optionRow}>
-                <Text style={styles.optionLabel}>AM</Text>
-              </Pressable>
-              <Pressable onPress={() => { setArrivalPeriod("PM"); setPeriodModalVisible(false); }} style={styles.optionRow}>
-                <Text style={styles.optionLabel}>PM</Text>
-              </Pressable>
-              <View style={styles.modalButtons}>
-                <TouchableOpacity onPress={() => setPeriodModalVisible(false)} style={styles.modalButton}>
-                  <Text style={styles.modalButtonText}>Close</Text>
+              <View style={styles.inputBox}>
+                <Text style={styles.label}>Transportation method:</Text>
+                <TouchableOpacity
+                  style={styles.dropdown}
+                  onPress={() => setTransportModalVisible(true)}
+                >
+                  <Text style={styles.dropdownText}>{selectedTransportLabel}</Text>
                 </TouchableOpacity>
               </View>
-            </View>
-          </View>
-        </Modal>
-      </SafeAreaView>
+
+              <View style={styles.inputBox}>
+                <Text style={styles.label}>Date:</Text>
+                <TextInput
+                  value={date}
+                  onChangeText={setDate}
+                  placeholder="Select date"
+                  style={styles.input}
+                  returnKeyType="done"
+                />
+              </View>
+
+              <TouchableOpacity style={styles.saveButton}>
+                <Text style={styles.saveText}>Save</Text>
+              </TouchableOpacity>
+            </ScrollView>
+
+            <Modal visible={daysModalVisible} animationType="slide" transparent>
+              <View style={styles.modalBackdrop}>
+                <View style={styles.modalContent}>
+                  <Text style={styles.modalTitle}>Repeat on</Text>
+                  <FlatList
+                    data={DAYS}
+                    keyExtractor={(i) => i.id}
+                    renderItem={renderDayItem}
+                  />
+                  <View style={styles.modalButtons}>
+                    <TouchableOpacity
+                      onPress={() => {
+                        setDaysModalVisible(false);
+                      }}
+                      style={styles.modalButton}
+                    >
+                      <Text style={styles.modalButtonText}>Done</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={() => {
+                        setSelectedDays([]);
+                        setDaysModalVisible(false);
+                      }}
+                      style={[styles.modalButton, styles.modalButtonSecondary]}
+                    >
+                      <Text
+                        style={[
+                          styles.modalButtonText,
+                          styles.modalButtonTextSecondary,
+                        ]}
+                      >
+                        Clear
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </View>
+            </Modal>
+
+            <Modal visible={periodModalVisible} animationType="fade" transparent>
+              <View style={styles.modalBackdrop}>
+                <View style={styles.modalContentSmall}>
+                  <Text style={styles.modalTitle}>AM / PM</Text>
+                  <Pressable
+                    onPress={() => {
+                      setArrivalPeriod("AM");
+                      setPeriodModalVisible(false);
+                    }}
+                    style={styles.optionRow}
+                  >
+                    <Text style={styles.optionLabel}>AM</Text>
+                  </Pressable>
+                  <Pressable
+                    onPress={() => {
+                      setArrivalPeriod("PM");
+                      setPeriodModalVisible(false);
+                    }}
+                    style={styles.optionRow}
+                  >
+                    <Text style={styles.optionLabel}>PM</Text>
+                  </Pressable>
+                  <View style={styles.modalButtons}>
+                    <TouchableOpacity
+                      onPress={() => setPeriodModalVisible(false)}
+                      style={styles.modalButton}
+                    >
+                      <Text style={styles.modalButtonText}>Close</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </View>
+            </Modal>
+
+            <Modal visible={transportModalVisible} animationType="slide" transparent>
+              <View style={styles.modalBackdrop}>
+                <View style={styles.modalContent}>
+                  <Text style={styles.modalTitle}>Transportation method</Text>
+                  <FlatList
+                    data={TRANSPORT_OPTIONS}
+                    keyExtractor={(i) => i.id}
+                    renderItem={renderTransportItem}
+                  />
+                  <View style={styles.modalButtons}>
+                    <TouchableOpacity
+                      onPress={() => setTransportModalVisible(false)}
+                      style={styles.modalButton}
+                    >
+                      <Text style={styles.modalButtonText}>Done</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={() => {
+                        setTransportMethod("");
+                        setTransportModalVisible(false);
+                      }}
+                      style={[styles.modalButton, styles.modalButtonSecondary]}
+                    >
+                      <Text
+                        style={[
+                          styles.modalButtonText,
+                          styles.modalButtonTextSecondary,
+                        ]}
+                      >
+                        Clear
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </View>
+            </Modal>
+          </SafeAreaView>
+        </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
     </>
   );
 }
@@ -169,7 +339,7 @@ const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: "#fff" },
   container: {
     padding: 20,
-    paddingBottom: 40,
+    paddingBottom: 200,
   },
   inputBox: {
     borderWidth: 1,
