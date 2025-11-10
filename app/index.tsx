@@ -13,14 +13,18 @@ export default function Index() {
         <Text style = {styles.hintText}>Known Appointments:</Text>
         {
           appointments.map((item: Appointment, index: number) => (
-            <View style = {styles.buttonContainer} key = {index}>
-                <TouchableOpacity style={styles.button} activeOpacity={0.8} onPress={() => {
+            <View style={{marginVertical:5}} key = {index}>
+                <TouchableOpacity style={styles.buttonContainer} activeOpacity={0.8} onPress={() => {
                     router.push({
                         pathname: "/create",
                         params: {app_num: index}
                     });
                 }}>
-                    <Text style={styles.button}>{item.name} {item.time}</Text>
+                    <View style = {{flexDirection:'column', paddingHorizontal:20}}>
+                        <Text style={{color: '#fff', fontSize: 20}}>{item.name}</Text> 
+                        <Text style={{color: '#fff', fontSize: 14}}> @ {item.address}</Text>
+                    </View>
+                    <Text style={{color: '#fff', fontSize: 24, textAlign:'right', paddingRight:20}}>{item.time}</Text>
                 </TouchableOpacity>
             </View>
           ))
@@ -73,12 +77,12 @@ const styles = StyleSheet.create({
     lineHeight: 28
   },
   buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     backgroundColor: "#6f6f6f",
-    width: 320,
+    width: '100%',
     height: 68,
-    marginHorizontal: 20,
     alignItems: 'center',
-    justifyContent: 'center',
     padding: 3,
   },
   button: {
@@ -88,9 +92,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
-  },
-  buttonLabel: {
-    color: '#fff',
-    fontSize: 16,
   },
 });
