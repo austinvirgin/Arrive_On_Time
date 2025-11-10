@@ -2,7 +2,7 @@ import { Linking, Platform } from 'react-native';
 
 export function GetDirections(destination, mode = 'driving'){
     const enc = encodeURIComponent;
-    destination = `${destination}, Rexburg`
+    destination = `${destination}`
 
     if (Platform.OS === 'ios'){
         return Linking.openURL(`http://maps.apple.com/?daddr=${enc(destination)}&dirflg=${modeFlag(mode)}`);

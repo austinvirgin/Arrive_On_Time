@@ -1,6 +1,7 @@
 import { useAppointmentContext } from "@/context/AppointmentContext";
 import { Stack, router } from "expo-router";
 import React, { useState } from "react";
+import MaskInput from "react-native-mask-input";
 import {
   FlatList,
   Modal,
@@ -12,6 +13,7 @@ import {
   TouchableOpacity,
   View
 } from "react-native";
+import { GetDirections } from "../backend/navigateThere";
 
 const DAYS = [
   { id: "sun", label: "Sunday" },
@@ -82,11 +84,13 @@ export default function CreateAppointment() {
           <View style={styles.inputBox}>
             <Text style={styles.label}>Arrival time:</Text>
             <View style={styles.row}>
-              <TextInput
+              <MaskInput
                 value={arrivalTime}
                 onChangeText={setArrivalTime}
                 placeholder="e.g. 12:15"
                 style={[styles.input, { flex: 1 }]}
+                keyboardType="numeric"
+                mask={[/\d/, /\d/, ":", /\d/, /\d/]}
               />
               <TouchableOpacity style={styles.periodDropdown} onPress={() => setPeriodModalVisible(true)}>
                 <Text style={styles.dropdownText}>{arrivalPeriod || "AM/PM"}</Text>
