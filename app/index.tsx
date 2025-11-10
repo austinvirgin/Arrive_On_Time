@@ -6,15 +6,22 @@ import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-nati
 
 export default function Index() {
   const router = useRouter();
-  const { appointments } = useAppointmentContext(); // this enables persistent appointment data across screens
+  const { appointments, addAppt } = useAppointmentContext(); // this enables persistent appointment data across screens
   return (
     <View style={styles.safe}>
       <ScrollView contentContainerStyle={styles.container}>
         <Text style = {styles.hintText}>Known Appointments:</Text>
         {
           appointments.map((item: Appointment, index: number) => (
-            <View key = {index}>
-              <Text>{item.getSummary()}</Text>
+            <View style = {styles.buttonContainer} key = {index}>
+                <TouchableOpacity style={styles.button} activeOpacity={0.8} onPress={() => {
+                    router.push({
+                        pathname: "/create",
+                        params: {app_num: index}
+                    });
+                }}>
+                    <Text style={styles.button}>{item.name} {item.time}</Text>
+                </TouchableOpacity>
             </View>
           ))
         }
@@ -64,5 +71,26 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 28,
     lineHeight: 28
-  }
+  },
+  buttonContainer: {
+    backgroundColor: "#6f6f6f",
+    width: 320,
+    height: 68,
+    marginHorizontal: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 3,
+  },
+  button: {
+    borderRadius: 10,
+    width: '100%',
+    height: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+  },
+  buttonLabel: {
+    color: '#fff',
+    fontSize: 16,
+  },
 });

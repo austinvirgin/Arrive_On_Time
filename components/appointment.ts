@@ -12,12 +12,12 @@ export class Appointment{
     // everything public for now
     public name: string;
     public address: string;
-    public date: any; // this may later be a specific dateTime instance or something related.
-    public time: any;
+    public date: string; // this may later be a specific dateTime instance or something related.
+    public time: string;
     public repeat: Appointment.Repeat | null; // allows a repeat to be set
     public transit_time: number; // set from a calculation, can be updated as needed.
     public transport_type: string; // string to pass to Google Maps API
-    constructor(name: string, address: string, date: any, time: any, repeat: Appointment.Repeat | null, appointmentsList_function: React.Dispatch<React.SetStateAction<Appointment[]>>){
+    constructor(name: string, address: string, date: string, time: string, repeat: Appointment.Repeat | null, appointmentsList_function: React.Dispatch<React.SetStateAction<Appointment[]>>){
         this.name = name;
         this.address = address;
         this.date = date;
