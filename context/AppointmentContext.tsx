@@ -7,6 +7,9 @@ interface AppointmentContextType{
   appointments: Appointment[];
   addAppt: (name: string, address: string, date: string, 
     arrivalTime: string, repeat: string[]) => void;
+  removeAppt: (index: number) => void;
+  modifyAppt: (index:number, name: string, address: string, date: string, 
+    arrivalTime: string, repeat: string[]) => void;
 }
 
 export const AppointmentContext = createContext<AppointmentContextType | undefined>(undefined); // allows sharing data across components
@@ -14,23 +17,26 @@ export const AppointmentContext = createContext<AppointmentContextType | undefin
 interface props {children: ReactNode} // makes the below function happy for type checking
 export function AppointmentProvider({ children }: props) {
   const [appointments, SetAppts] = useState<Appointment[]>([]);
-
+  const removeAppt = (index: number) => {
+    SetAppts(prev => prev.filter((appt, i) => i !== index)); // filter and keep every appointment but the one at this index
+  };
+  const modifyAppt = (index: number, name: string, address: string, date: string, 
+    arrivalTime: string, repeat: string[]) => {
+    SetAppts(prev => {
+      const updated = [...prev]; 
+      updated[index] = new Appointment(name, address, date, arrivalTime, repeat);
+      return updated;
+    }
+    );
+  };
   const addAppt = (name: string, address: string, date: string, 
     arrivalTime: string, repeat: string[]) => {
-    // define its repeat pattern
-    let repeats = null;//: Appointment.Repeat = {days: [], period: 1};
-    if(repeat.length > 1){
-      repeats = {
-        days: repeat, // days of the week this appointment happens
-        period: 1, // repeat every 1 week
-      };
-    }
-    const newAppt = new Appointment(name, address, date, arrivalTime, repeats, SetAppts);
-    //setAppts(prev => [...prev, newAppt]); // this is done inside the Appointment constructor, for abstraction's sake
+    const newAppt = new Appointment(name, address, date, arrivalTime, repeat);
+    SetAppts(prev => [...prev, newAppt]); // put this new appointment at the end of the list
   };
 
   return (
-    <AppointmentContext.Provider value={{ appointments, addAppt }}>
+    <AppointmentContext.Provider value={{ appointments, addAppt, removeAppt, modifyAppt }}>
       {children}
     </AppointmentContext.Provider>
   );

@@ -6,7 +6,7 @@ import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-nati
 
 export default function Index() {
   const router = useRouter();
-  const { appointments, addAppt } = useAppointmentContext(); // this enables persistent appointment data across screens
+  const { appointments, addAppt, removeAppt, modifyAppt } = useAppointmentContext(); // this enables persistent appointment data across screens
   return (
     <View style={styles.safe}>
       <ScrollView contentContainerStyle={styles.container}>

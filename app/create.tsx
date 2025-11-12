@@ -24,9 +24,8 @@ const DAYS = [
 ];
 
 export default function CreateAppointment() {
-    const { appointments, addAppt } = useAppointmentContext(); // this allows persistent appointment data across screens
+    const { appointments, addAppt, removeAppt, modifyAppt } = useAppointmentContext(); // this allows persistent appointment data across screens
     const params = useLocalSearchParams();
-    //alert(params.app_num);
     const appt = params.app_num; // this might be empty if app_num wasn't set by the appointment
     let app_num: number = -1;
     let repeat_days: string[] = []; // set a default blank list if this parameter doesn't exist
@@ -40,13 +39,13 @@ export default function CreateAppointment() {
     }
     if (app_num >= 0)
     {
-        repeat_days = appointments[app_num].repeat?.days ?? []; // set a default blank list if this parameter doesn't exist
+        repeat_days = appointments[app_num].repeat ?? []; // set a default blank list if this parameter doesn't exist
     }
   const [name, setName] = app_num >= 0? useState(appointments[app_num].name) : useState("") ;
   const [address, setAddress] = app_num >= 0? useState(appointments[app_num].address) : useState("");
   const [arrivalTime, setArrivalTime] = app_num >= 0? useState(appointments[app_num].time.split(" ")[0]) : useState("");
   const [arrivalPeriod, setArrivalPeriod] = app_num >= 0? useState(appointments[app_num].time.split(" ")[1].toUpperCase()) : useState<"AM" | "PM" | "">("");
-  const [isRepeating, setIsRepeating] = app_num >= 0? useState(appointments[app_num].repeat? true: false) : useState(false);
+  const [isRepeating, setIsRepeating] = app_num >= 0? useState(repeat_days.length > 0) : useState(false);
   const [selectedDays, setSelectedDays] = app_num >= 0? useState<string[]>(repeat_days) : useState<string[]>([]);
   const [daysModalVisible, setDaysModalVisible] = useState(false);
   const [periodModalVisible, setPeriodModalVisible] = useState(false);
@@ -80,6 +79,20 @@ export default function CreateAppointment() {
     selectedDays.length === 0 ? "None" : DAYS.filter((d) => selectedDays.includes(d.id))
       .map((d) => d.label)
       .join(", ");
+
+  // code to allow for the delete button to appear (requires that this is a specific index of the appointments list)
+  let can_delete = null;
+  if(app_num >= 0)
+  {
+    can_delete = (
+        <TouchableOpacity style = {styles.deleteButton} onPress={() =>{
+            removeAppt(app_num);
+            router.replace('..'); // replace this page with the previous page, rerendered
+        }}>
+            <Text style={styles.deleteText}>Delete</Text>
+        </TouchableOpacity>
+    );
+  }
 
   return (
     <>
@@ -141,27 +154,17 @@ export default function CreateAppointment() {
           <TouchableOpacity style={styles.saveButton} onPress={() => {
                 if(app_num >= 0)
                 {
-                    appointments[app_num].name = name
-                    appointments[app_num].address = address;
-                    appointments[app_num].date = date;
-                    appointments[app_num].time = arrivalTime + " " + arrivalPeriod.toLowerCase();
-                    let repeats = null;//: Appointment.Repeat = {days: [], period: 1};
-                    if(selectedDays.length > 1){
-                        repeats = {
-                            days: selectedDays, // days of the week this appointment happens
-                            period: 1, // repeat every 1 week
-                        };
-                    }
-                    appointments[app_num].repeat = repeats;
+                    modifyAppt(app_num, name, address, date, arrivalTime + " " + arrivalPeriod.toLowerCase(), selectedDays);
                 }
                 else
                 {
                     addAppt(name, address, date, arrivalTime + " " + arrivalPeriod.toLowerCase(), selectedDays); // make an appointment with this screen's data
                 }
-                router.back(); // then go back to the main index.tsx screen
+                router.replace('..'); // replace this page with the previous page, rerendered
             }}>
             <Text style={styles.saveText}>Save</Text>
           </TouchableOpacity>
+          {can_delete}
         </ScrollView>
 
         <Modal visible={daysModalVisible} animationType="slide" transparent>
@@ -296,6 +299,17 @@ const styles = StyleSheet.create({
   saveText: {
     color: "#fff",
     fontWeight: "600",
+  },
+  deleteButton: {
+    marginTop: 10,
+    backgroundColor: "#ddd",
+    paddingVertical: 5,
+    borderRadius: 6,
+    alignItems: "center",
+  },
+  deleteText:{
+    color: "#f00",
+    textDecorationLine: "underline"
   },
   modalBackdrop: {
     flex: 1,
