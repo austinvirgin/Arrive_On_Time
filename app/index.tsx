@@ -6,15 +6,26 @@ import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-nati
 
 export default function Index() {
   const router = useRouter();
-  const { appointments } = useAppointmentContext(); // this enables persistent appointment data across screens
+  const { appointments, addAppt, removeAppt, modifyAppt } = useAppointmentContext(); // this enables persistent appointment data across screens
   return (
     <View style={styles.safe}>
       <ScrollView contentContainerStyle={styles.container}>
         <Text style = {styles.hintText}>Known Appointments:</Text>
         {
           appointments.map((item: Appointment, index: number) => (
-            <View key = {index}>
-              <Text>{item.getSummary()}</Text>
+            <View style={{marginVertical:5}} key = {index}>
+                <TouchableOpacity style={styles.buttonContainer} activeOpacity={0.8} onPress={() => {
+                    router.push({
+                        pathname: "/create",
+                        params: {app_num: index}
+                    });
+                }}>
+                    <View style = {{flexDirection:'column', paddingHorizontal:20}}>
+                        <Text style={{color: '#fff', fontSize: 20}}>{item.name}</Text> 
+                        <Text style={{color: '#fff', fontSize: 14}}> @ {item.address}</Text>
+                    </View>
+                    <Text style={{color: '#fff', fontSize: 24, textAlign:'right', paddingRight:20}}>{item.time}</Text>
+                </TouchableOpacity>
             </View>
           ))
         }
@@ -64,5 +75,22 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 28,
     lineHeight: 28
-  }
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    backgroundColor: "#6f6f6f",
+    width: '100%',
+    height: 68,
+    alignItems: 'center',
+    padding: 3,
+  },
+  button: {
+    borderRadius: 10,
+    width: '100%',
+    height: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+  },
 });

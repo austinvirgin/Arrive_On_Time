@@ -1,16 +1,16 @@
 import { useAppointmentContext } from "@/context/AppointmentContext";
-import { Stack, router } from "expo-router";
+import { Stack, router, useLocalSearchParams } from "expo-router";
 import React, { useState } from "react";
 import {
-  FlatList,
-  Modal,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View
+    FlatList,
+    Modal,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
 } from "react-native";
 
 const DAYS = [
@@ -24,17 +24,33 @@ const DAYS = [
 ];
 
 export default function CreateAppointment() {
-  const { addAppt } = useAppointmentContext(); // this allows persistent appointment data across screens
-  const [name, setName] = useState("");
-  const [address, setAddress] = useState("");
-  const [arrivalTime, setArrivalTime] = useState("");
-  const [arrivalPeriod, setArrivalPeriod] = useState<"AM" | "PM" | "">("");
-  const [isRepeating, setIsRepeating] = useState(false);
-  const [selectedDays, setSelectedDays] = useState<string[]>([]);
+    const { appointments, addAppt, removeAppt, modifyAppt } = useAppointmentContext(); // this allows persistent appointment data across screens
+    const params = useLocalSearchParams();
+    const appt = params.app_num; // this might be empty if app_num wasn't set by the appointment
+    let app_num: number = -1;
+    let repeat_days: string[] = []; // set a default blank list if this parameter doesn't exist
+    if (appt && !Array.isArray(appt))
+    {
+        app_num = parseInt(appt, 10); // convert to integer index
+        if (app_num > appointments.length)
+        {
+            app_num = -1
+        }
+    }
+    if (app_num >= 0)
+    {
+        repeat_days = appointments[app_num].repeat ?? []; // set a default blank list if this parameter doesn't exist
+    }
+  const [name, setName] = app_num >= 0? useState(appointments[app_num].name) : useState("") ;
+  const [address, setAddress] = app_num >= 0? useState(appointments[app_num].address) : useState("");
+  const [arrivalTime, setArrivalTime] = app_num >= 0? useState(appointments[app_num].time.split(" ")[0]) : useState("");
+  const [arrivalPeriod, setArrivalPeriod] = app_num >= 0? useState(appointments[app_num].time.split(" ")[1].toUpperCase()) : useState<"AM" | "PM" | "">("");
+  const [isRepeating, setIsRepeating] = app_num >= 0? useState(repeat_days.length > 0) : useState(false);
+  const [selectedDays, setSelectedDays] = app_num >= 0? useState<string[]>(repeat_days) : useState<string[]>([]);
   const [daysModalVisible, setDaysModalVisible] = useState(false);
   const [periodModalVisible, setPeriodModalVisible] = useState(false);
   const [estimatedTravelTime, setEstimatedTravelTime] = useState("");
-  const [date, setDate] = useState("");
+  const [date, setDate] = app_num >= 0? useState(appointments[app_num].date) : useState("");
 
   const toggleDay = (dayId: string) => {
     if (selectedDays.includes(dayId)) {
@@ -64,6 +80,20 @@ export default function CreateAppointment() {
       .map((d) => d.label)
       .join(", ");
 
+  // code to allow for the delete button to appear (requires that this is a specific index of the appointments list)
+  let can_delete = null;
+  if(app_num >= 0)
+  {
+    can_delete = (
+        <TouchableOpacity style = {styles.deleteButton} onPress={() =>{
+            removeAppt(app_num);
+            router.replace('..'); // replace this page with the previous page, rerendered
+        }}>
+            <Text style={styles.deleteText}>Delete</Text>
+        </TouchableOpacity>
+    );
+  }
+
   return (
     <>
       <Stack.Screen options={{ title: "Create Appointment" }} />
@@ -71,7 +101,7 @@ export default function CreateAppointment() {
         <ScrollView contentContainerStyle={styles.container}>
           <View style={styles.inputBox}>
             <Text style={styles.label}>Appointment Name:</Text>
-            <TextInput value={name} onChangeText={setName} placeholder="Enter appointment name" style={styles.input} />
+            <TextInput value={name} onChangeText={setName} placeholder="Enter appointment name" style={styles.input}/>
           </View>
 
           <View style={styles.inputBox}>
@@ -122,11 +152,19 @@ export default function CreateAppointment() {
           </View>
 
           <TouchableOpacity style={styles.saveButton} onPress={() => {
-              addAppt(name, address, date, arrivalTime + arrivalPeriod.toLowerCase(), selectedDays); // make an appointment with this screen's data
-              router.back(); // then go back to the main index.tsx screen
+                if(app_num >= 0)
+                {
+                    modifyAppt(app_num, name, address, date, arrivalTime + " " + arrivalPeriod.toLowerCase(), selectedDays);
+                }
+                else
+                {
+                    addAppt(name, address, date, arrivalTime + " " + arrivalPeriod.toLowerCase(), selectedDays); // make an appointment with this screen's data
+                }
+                router.replace('..'); // replace this page with the previous page, rerendered
             }}>
             <Text style={styles.saveText}>Save</Text>
           </TouchableOpacity>
+          {can_delete}
         </ScrollView>
 
         <Modal visible={daysModalVisible} animationType="slide" transparent>
@@ -261,6 +299,17 @@ const styles = StyleSheet.create({
   saveText: {
     color: "#fff",
     fontWeight: "600",
+  },
+  deleteButton: {
+    marginTop: 10,
+    backgroundColor: "#ddd",
+    paddingVertical: 5,
+    borderRadius: 6,
+    alignItems: "center",
+  },
+  deleteText:{
+    color: "#f00",
+    textDecorationLine: "underline"
   },
   modalBackdrop: {
     flex: 1,
