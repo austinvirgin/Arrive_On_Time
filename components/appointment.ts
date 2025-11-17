@@ -20,9 +20,6 @@ export class Appointment{
         this.repeat = repeat;
         this.transit_time = eta; // assume a 10 minute transit time for now
         this.transport_type = transport_type; // string to pass to Google Maps API
-
-        // Overwrite previous list to now be the previous list with 1 more appointment at the end
-        appointmentsList_function(prev => [...prev, this]);
     };
 
     // a string that contains relevant information about this appointment
