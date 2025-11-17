@@ -6,7 +6,7 @@ import { createContext, ReactNode, useContext, useState } from 'react';
 interface AppointmentContextType{
   appointments: Appointment[];
   addAppt: (name: string, address: string, date: string, 
-    arrivalTime: string, repeat: string[]) => void;
+    arrivalTime: string, eta: string, transport_type: string, repeat: string[]) => void;
 }
 
 export const AppointmentContext = createContext<AppointmentContextType | undefined>(undefined); // allows sharing data across components
@@ -16,7 +16,7 @@ export function AppointmentProvider({ children }: props) {
   const [appointments, SetAppts] = useState<Appointment[]>([]);
 
   const addAppt = (name: string, address: string, date: string, 
-    arrivalTime: string, repeat: string[]) => {
+    arrivalTime: string, eta: string, transport_type: string, repeat: string[]) => {
     // define its repeat pattern
     let repeats = null;//: Appointment.Repeat = {days: [], period: 1};
     if(repeat.length > 1){
@@ -25,7 +25,7 @@ export function AppointmentProvider({ children }: props) {
         period: 1, // repeat every 1 week
       };
     }
-    const newAppt = new Appointment(name, address, date, arrivalTime, repeats, SetAppts);
+    const newAppt = new Appointment(name, address, date, arrivalTime, eta, transport_type, repeats, SetAppts);
     //setAppts(prev => [...prev, newAppt]); // this is done inside the Appointment constructor, for abstraction's sake
   };
 

@@ -1,7 +1,6 @@
 import { useAppointmentContext } from "@/context/AppointmentContext";
 import { Stack, router } from "expo-router";
 import React, { useState } from "react";
-import MaskInput from "react-native-mask-input";
 import {
   FlatList,
   Modal,
@@ -13,7 +12,8 @@ import {
   TouchableOpacity,
   View
 } from "react-native";
-import { GetDirections } from "../backend/navigateThere";
+import MaskInput from "react-native-mask-input";
+import { calculateTime } from "../backend/backend";
 
 const DAYS = [
   { id: "sun", label: "Sunday" },
@@ -27,6 +27,7 @@ const DAYS = [
 
 export default function CreateAppointment() {
   const { addAppt } = useAppointmentContext(); // this allows persistent appointment data across screens
+  const [startingLocation, setStartingLocation] = useState("");
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
   const [arrivalTime, setArrivalTime] = useState("");
@@ -35,7 +36,8 @@ export default function CreateAppointment() {
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
   const [daysModalVisible, setDaysModalVisible] = useState(false);
   const [periodModalVisible, setPeriodModalVisible] = useState(false);
-  const [estimatedTravelTime, setEstimatedTravelTime] = useState("");
+  const [travelType, SetTravelType] = useState("");
+  const [travelTypeVisible, setTravelTypeVisible] = useState(false);
   const [date, setDate] = useState("");
 
   const toggleDay = (dayId: string) => {
@@ -74,6 +76,11 @@ export default function CreateAppointment() {
           <View style={styles.inputBox}>
             <Text style={styles.label}>Appointment Name:</Text>
             <TextInput value={name} onChangeText={setName} placeholder="Enter appointment name" style={styles.input} />
+          </View>
+
+          <View style={styles.inputBox}>
+            <Text style={styles.label}>Starting Address:</Text>
+            <TextInput value={startingLocation} onChangeText={setStartingLocation} placeholder="Enter starting address" style={styles.input}/>
           </View>
 
           <View style={styles.inputBox}>
@@ -116,17 +123,20 @@ export default function CreateAppointment() {
           </View>
 
           <View style={styles.inputBox}>
-            <Text style={styles.label}>Estimated travel time:</Text>
-            <TextInput value={estimatedTravelTime} onChangeText={setEstimatedTravelTime} placeholder="e.g. 15 min" style={styles.input} />
-          </View>
-
-          <View style={styles.inputBox}>
             <Text style={styles.label}>Date:</Text>
             <TextInput value={date} onChangeText={setDate} placeholder="Select date" style={styles.input} />
           </View>
 
-          <TouchableOpacity style={styles.saveButton} onPress={() => {
-              addAppt(name, address, date, arrivalTime + arrivalPeriod.toLowerCase(), selectedDays); // make an appointment with this screen's data
+          <View style={styles.inputBox}>
+            <TouchableOpacity onPress={() => setTravelTypeVisible(true)}>
+              <Text style={styles.travelType}>{travelType || "Travel Type"}</Text>
+            </TouchableOpacity>
+          </View>          
+
+          <TouchableOpacity style={styles.saveButton} onPress={async() => {
+              const time = `${arrivalTime} ${arrivalPeriod}`
+              const eta = await calculateTime(startingLocation, address, travelType.toLowerCase(), time)
+              addAppt(name, address, date, arrivalTime + arrivalPeriod.toLowerCase(), eta, travelType, selectedDays); // make an appointment with this screen's data
               router.back(); // then go back to the main index.tsx screen
             }}>
             <Text style={styles.saveText}>Save</Text>
@@ -162,6 +172,28 @@ export default function CreateAppointment() {
               </Pressable>
               <View style={styles.modalButtons}>
                 <TouchableOpacity onPress={() => setPeriodModalVisible(false)} style={styles.modalButton}>
+                  <Text style={styles.modalButtonText}>Close</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
+
+        <Modal visible={travelTypeVisible} animationType="fade" transparent>
+          <View style={styles.modalBackdrop}>
+            <View style={styles.modalContentSmall}>
+              <Text style={styles.modalTitle}>Travel Type</Text>
+              <Pressable onPress={() => { SetTravelType("Walking"); setTravelTypeVisible(false); }} style={styles.optionRow}>
+                <Text style={styles.optionLabel}>Walking</Text>
+              </Pressable>
+              <Pressable onPress={() => { SetTravelType('Driving'); setTravelTypeVisible(false); }} style={styles.optionRow}>
+                <Text style={styles.optionLabel}>Driving</Text>
+              </Pressable>
+              <Pressable onPress={() => { SetTravelType('Biking'); setTravelTypeVisible(false); }} style={styles.optionRow}>
+                <Text style={styles.optionLabel}>Biking</Text>
+              </Pressable>
+              <View style={styles.modalButtons}>
+                <TouchableOpacity onPress={() => setTravelTypeVisible(false)} style={styles.modalButton}>
                   <Text style={styles.modalButtonText}>Close</Text>
                 </TouchableOpacity>
               </View>
@@ -342,5 +374,8 @@ const styles = StyleSheet.create({
   },
   modalButtonTextSecondary: {
     color: "#333",
+  },
+  travelType: {
+    textAlign: "center"
   },
 });

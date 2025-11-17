@@ -15,9 +15,9 @@ export class Appointment{
     public date: any; // this may later be a specific dateTime instance or something related.
     public time: any;
     public repeat: Appointment.Repeat | null; // allows a repeat to be set
-    public transit_time: number; // set from a calculation, can be updated as needed.
+    public transit_time: string; // set from a calculation, can be updated as needed.
     public transport_type: string; // string to pass to Google Maps API
-    constructor(name: string, address: string, date: any, time: any, repeat: Appointment.Repeat | null, appointmentsList_function: React.Dispatch<React.SetStateAction<Appointment[]>>){
+    constructor(name: string, address: string, date: any, time: any, eta: string, transport_type: string, repeat: Appointment.Repeat | null, appointmentsList_function: React.Dispatch<React.SetStateAction<Appointment[]>>){
         this.name = name;
         this.address = address;
         this.date = date;
@@ -28,8 +28,8 @@ export class Appointment{
         //     period: 1, // repeat every week
         // };
         this.repeat = repeat;
-        this.transit_time = 10; // assume a 10 minute transit time for now
-        this.transport_type = "walking"; // string to pass to Google Maps API
+        this.transit_time = eta; // assume a 10 minute transit time for now
+        this.transport_type = transport_type; // string to pass to Google Maps API
 
         // Overwrite previous list to now be the previous list with 1 more appointment at the end
         appointmentsList_function(prev => [...prev, this]);
@@ -37,7 +37,7 @@ export class Appointment{
 
     // a string that contains relevant information about this appointment
     getSummary(): string{
-        return `${this.name} at ${this.address} on ${this.date} at ${this.time}${this.repeat? " every " + this.repeat.days.toString() : ""}`;
+        return `${this.name} at ${this.address} on ${this.date} at ${this.time}${this.repeat? " every " + this.repeat.days.toString() : " " + `must leave at ${this.transit_time}`}`;
     }
 
     // example of how to get a specific attribute from this class
