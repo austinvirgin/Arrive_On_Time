@@ -1,4 +1,5 @@
 import { useAppointmentContext } from "@/context/AppointmentContext";
+import asyncStorage from '@react-native-async-storage/async-storage';
 import { Stack, router } from "expo-router";
 import React, { useState } from "react";
 import {
@@ -24,7 +25,7 @@ const DAYS = [
 ];
 
 export default function CreateAppointment() {
-  const { addAppt } = useAppointmentContext(); // this allows persistent appointment data across screens
+  const { appointments, addAppt } = useAppointmentContext(); // this allows persistent appointment data across screens
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
   const [arrivalTime, setArrivalTime] = useState("");
@@ -123,6 +124,7 @@ export default function CreateAppointment() {
 
           <TouchableOpacity style={styles.saveButton} onPress={() => {
               addAppt(name, address, date, arrivalTime + arrivalPeriod.toLowerCase(), selectedDays); // make an appointment with this screen's data
+              asyncStorage.setItem('appointments', JSON.stringify(appointments));
               router.back(); // then go back to the main index.tsx screen
             }}>
             <Text style={styles.saveText}>Save</Text>

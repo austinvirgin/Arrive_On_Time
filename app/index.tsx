@@ -8,11 +8,12 @@ import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-nati
 var appointmentsList : Appointment[] = []; // initialize an empty list of appointments
 
 export default function Index() {
-  Startup();
+
   const [appts, makeAppt] = useState<Appointment[]>([]); // initialize an empty list of appointments. Use makeAppt() to modify the list
   
   const router = useRouter();
-  const { appointments } = useAppointmentContext(); // this enables persistent appointment data across screens
+  const { appointments, addAppt } = useAppointmentContext(); // this enables persistent appointment data across screens
+  Startup(addAppt);
   return (
     <View style={styles.safe}>
       <ScrollView contentContainerStyle={styles.container}>
