@@ -27,14 +27,6 @@ const DAYS = [
   { id: "sat", label: "Saturday" },
 ];
 
-const TRANSPORT_OPTIONS = [
-  { id: "driving", label: "Drive" },
-  { id: "transit", label: "Public transport" },
-  { id: "walking", label: "Walk" },
-  { id: "bicycling", label: "Bicycle" },
-  { id: "flight", label: "Fly" },
-];
-
 export default function CreateAppointment() {
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
@@ -44,8 +36,7 @@ export default function CreateAppointment() {
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
   const [daysModalVisible, setDaysModalVisible] = useState(false);
   const [periodModalVisible, setPeriodModalVisible] = useState(false);
-  const [transportModalVisible, setTransportModalVisible] = useState(false);
-  const [transportMethod, setTransportMethod] = useState<string>("");
+  const [estimatedTravelTime, setEstimatedTravelTime] = useState("");
   const [date, setDate] = useState("");
   const scrollRef = useRef<ScrollView | null>(null);
 
@@ -72,35 +63,12 @@ export default function CreateAppointment() {
     );
   };
 
-  const renderTransportItem = ({ item }: { item: { id: string; label: string } }) => {
-    const selected = transportMethod === item.id;
-    return (
-      <Pressable
-        onPress={() => {
-          setTransportMethod(item.id);
-          setTransportModalVisible(false);
-        }}
-        style={[styles.optionRow, selected && styles.optionRowSelected]}
-      >
-        <View style={[styles.checkboxSmall, selected && styles.checkboxSmallChecked]}>
-          {selected && <Text style={styles.checkboxSmallTick}>✓</Text>}
-        </View>
-        <Text style={styles.optionLabel}>{item.label}</Text>
-      </Pressable>
-    );
-  };
-
   const selectedDaysLabel =
     selectedDays.length === 0
       ? "None"
       : DAYS.filter((d) => selectedDays.includes(d.id))
           .map((d) => d.label)
           .join(", ");
-
-  const selectedTransportLabel =
-    transportMethod === ""
-      ? "Select transport"
-      : TRANSPORT_OPTIONS.find((t) => t.id === transportMethod)?.label || "Select transport";
 
   const keyboardVerticalOffset = Platform.OS === "ios" ? 100 : 80;
 
@@ -194,13 +162,14 @@ export default function CreateAppointment() {
               </View>
 
               <View style={styles.inputBox}>
-                <Text style={styles.label}>Transportation method:</Text>
-                <TouchableOpacity
-                  style={styles.dropdown}
-                  onPress={() => setTransportModalVisible(true)}
-                >
-                  <Text style={styles.dropdownText}>{selectedTransportLabel}</Text>
-                </TouchableOpacity>
+                <Text style={styles.label}>Estimated travel time:</Text>
+                <TextInput
+                  value={estimatedTravelTime}
+                  onChangeText={setEstimatedTravelTime}
+                  placeholder="e.g. 15 min"
+                  style={styles.input}
+                  returnKeyType="next"
+                />
               </View>
 
               <View style={styles.inputBox}>
@@ -223,35 +192,13 @@ export default function CreateAppointment() {
               <View style={styles.modalBackdrop}>
                 <View style={styles.modalContent}>
                   <Text style={styles.modalTitle}>Repeat on</Text>
-                  <FlatList
-                    data={DAYS}
-                    keyExtractor={(i) => i.id}
-                    renderItem={renderDayItem}
-                  />
+                  <FlatList data={DAYS} keyExtractor={(i) => i.id} renderItem={renderDayItem} />
                   <View style={styles.modalButtons}>
-                    <TouchableOpacity
-                      onPress={() => {
-                        setDaysModalVisible(false);
-                      }}
-                      style={styles.modalButton}
-                    >
+                    <TouchableOpacity onPress={() => { setDaysModalVisible(false); }} style={styles.modalButton}>
                       <Text style={styles.modalButtonText}>Done</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity
-                      onPress={() => {
-                        setSelectedDays([]);
-                        setDaysModalVisible(false);
-                      }}
-                      style={[styles.modalButton, styles.modalButtonSecondary]}
-                    >
-                      <Text
-                        style={[
-                          styles.modalButtonText,
-                          styles.modalButtonTextSecondary,
-                        ]}
-                      >
-                        Clear
-                      </Text>
+                    <TouchableOpacity onPress={() => { setSelectedDays([]); setDaysModalVisible(false); }} style={[styles.modalButton, styles.modalButtonSecondary]}>
+                      <Text style={[styles.modalButtonText, styles.modalButtonTextSecondary]}>Clear</Text>
                     </TouchableOpacity>
                   </View>
                 </View>
@@ -262,67 +209,15 @@ export default function CreateAppointment() {
               <View style={styles.modalBackdrop}>
                 <View style={styles.modalContentSmall}>
                   <Text style={styles.modalTitle}>AM / PM</Text>
-                  <Pressable
-                    onPress={() => {
-                      setArrivalPeriod("AM");
-                      setPeriodModalVisible(false);
-                    }}
-                    style={styles.optionRow}
-                  >
+                  <Pressable onPress={() => { setArrivalPeriod("AM"); setPeriodModalVisible(false); }} style={styles.optionRow}>
                     <Text style={styles.optionLabel}>AM</Text>
                   </Pressable>
-                  <Pressable
-                    onPress={() => {
-                      setArrivalPeriod("PM");
-                      setPeriodModalVisible(false);
-                    }}
-                    style={styles.optionRow}
-                  >
+                  <Pressable onPress={() => { setArrivalPeriod("PM"); setPeriodModalVisible(false); }} style={styles.optionRow}>
                     <Text style={styles.optionLabel}>PM</Text>
                   </Pressable>
                   <View style={styles.modalButtons}>
-                    <TouchableOpacity
-                      onPress={() => setPeriodModalVisible(false)}
-                      style={styles.modalButton}
-                    >
+                    <TouchableOpacity onPress={() => setPeriodModalVisible(false)} style={styles.modalButton}>
                       <Text style={styles.modalButtonText}>Close</Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              </View>
-            </Modal>
-
-            <Modal visible={transportModalVisible} animationType="slide" transparent>
-              <View style={styles.modalBackdrop}>
-                <View style={styles.modalContent}>
-                  <Text style={styles.modalTitle}>Transportation method</Text>
-                  <FlatList
-                    data={TRANSPORT_OPTIONS}
-                    keyExtractor={(i) => i.id}
-                    renderItem={renderTransportItem}
-                  />
-                  <View style={styles.modalButtons}>
-                    <TouchableOpacity
-                      onPress={() => setTransportModalVisible(false)}
-                      style={styles.modalButton}
-                    >
-                      <Text style={styles.modalButtonText}>Done</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      onPress={() => {
-                        setTransportMethod("");
-                        setTransportModalVisible(false);
-                      }}
-                      style={[styles.modalButton, styles.modalButtonSecondary]}
-                    >
-                      <Text
-                        style={[
-                          styles.modalButtonText,
-                          styles.modalButtonTextSecondary,
-                        ]}
-                      >
-                        Clear
-                      </Text>
                     </TouchableOpacity>
                   </View>
                 </View>
