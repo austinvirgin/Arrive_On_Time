@@ -95,7 +95,7 @@ export class NotificationService {
     console.log("Notification sent:", message);
   }
 
-  // 🔹 New helper function: does it all in one call
+  //New helper function: does it all in one call
   async sendPush(title, body) {
     console.log("Preparing to send push notification...");
 
