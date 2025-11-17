@@ -50,9 +50,9 @@ export default function CreateAppointment() {
   const [isRepeating, setIsRepeating] = app_num >= 0? useState(repeat_days.length > 0) : useState(false);
   const [selectedDays, setSelectedDays] = app_num >= 0? useState<string[]>(repeat_days) : useState<string[]>([]);
   const [daysModalVisible, setDaysModalVisible] = useState(false);
-  const [startingLocation, setStartingLocation] = useState("");
+  const [startingLocation, setStartingLocation] = app_num >= 0? useState(appointments[app_num].starting_address): useState("");
   const [periodModalVisible, setPeriodModalVisible] = useState(false);
-  const [travelType, SetTravelType] = useState("");
+  const [travelType, SetTravelType] = app_num >= 0? useState(appointments[app_num].transport_type) : useState("");
   const [travelTypeVisible, setTravelTypeVisible] = useState(false);
   const [date, setDate] = app_num >= 0? useState(appointments[app_num].date) : useState("");
 
@@ -106,11 +106,6 @@ export default function CreateAppointment() {
           <View style={styles.inputBox}>
             <Text style={styles.label}>Appointment Name:</Text>
             <TextInput value={name} onChangeText={setName} placeholder="Enter appointment name" style={styles.input}/>
-          </View>
-
-          <View style={styles.inputBox}>
-            <Text style={styles.label}>Starting Address:</Text>
-            <TextInput value={startingLocation} onChangeText={setStartingLocation} placeholder="Enter starting address" style={styles.input}/>
           </View>
 
           <View style={styles.inputBox}>
@@ -173,9 +168,11 @@ export default function CreateAppointment() {
               const eta = await calculateTime(startingLocation, address, travelType.toLowerCase(), time)
               if (app_num >= 0)
               {
-                modifyAppt(app_num, name, address, date, `${arrivalTime} ${arrivalPeriod.toLowerCase()}`, eta, travelType, selectedDays);
+                modifyAppt(app_num, name, address, date, time, eta, travelType, startingLocation, selectedDays);
               }
-              addAppt(name, address, date, arrivalTime + arrivalPeriod.toLowerCase(),  eta, travelType, selectedDays); // make an appointment with this screen's data
+              else{
+                addAppt(name, address, date, time, eta, travelType, startingLocation, selectedDays); // make an appointment with this screen's data
+              }
               router.replace('..'); // then go back to the main index.tsx screen
             }}>
             <Text style={styles.saveText}>Save</Text>

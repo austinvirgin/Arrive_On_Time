@@ -7,7 +7,8 @@ export class Appointment{
     public repeat: string[]; // allows a repeat to be set
     public transit_time: string; // set from a calculation, can be updated as needed.
     public transport_type: string; // string to pass to Google Maps API
-    constructor(name: string, address: string, date: any, time: any, eta: string, transport_type: string, repeat: string[]){
+    public starting_address: string;
+    constructor(name: string, address: string, date: any, time: any, eta: string, transport_type: string, starting_address: string, repeat: string[]){
         this.name = name;
         this.address = address;
         this.date = date;
@@ -20,6 +21,7 @@ export class Appointment{
         this.repeat = repeat;
         this.transit_time = eta; // assume a 10 minute transit time for now
         this.transport_type = transport_type; // string to pass to Google Maps API
+        this.starting_address = starting_address
     };
 
     // a string that contains relevant information about this appointment

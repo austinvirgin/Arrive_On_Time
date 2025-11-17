@@ -6,10 +6,10 @@ import { createContext, ReactNode, useContext, useState } from 'react';
 interface AppointmentContextType{
   appointments: Appointment[];
   addAppt: (name: string, address: string, date: string, 
-    arrivalTime: string, eta: string, transport_type: string, repeat: string[]) => void;
+    arrivalTime: string, eta: string, transport_type: string, starting_address: string, repeat: string[]) => void;
   removeAppt: (index: number) => void;
   modifyAppt: (index:number, name: string, address: string, date: string, 
-    arrivalTime: string, eta: string, transport_type: string, repeat: string[]) => void;
+    arrivalTime: string, eta: string, transport_type: string, starting_address: string, repeat: string[]) => void;
 }
 
 export const AppointmentContext = createContext<AppointmentContextType | undefined>(undefined); // allows sharing data across components
@@ -21,16 +21,16 @@ export function AppointmentProvider({ children }: props) {
     SetAppts(prev => prev.filter((appt, i) => i !== index)); // filter and keep every appointment but the one at this index
   };
   const modifyAppt = (index: number, name: string, address: string, date: string, 
-    arrivalTime: string, eta: string, transport_type: string, repeat: string[]) => {
+    arrivalTime: string, eta: string, transport_type: string, starting_address: string, repeat: string[]) => {
     SetAppts(prev => {
       const updated = [...prev]; 
-      updated[index] = new Appointment(name, address, date, arrivalTime, eta, transport_type, repeat);
+      updated[index] = new Appointment(name, address, date, arrivalTime, eta, transport_type, starting_address, repeat);
       return updated;
     }
     );
   };
   const addAppt = (name: string, address: string, date: string, 
-    arrivalTime: string, eta: string, transport_type: string, repeat: string[]) => {
+    arrivalTime: string, eta: string, transport_type: string, starting_address: string, repeat: string[]) => {
     // define its repeat pattern
     let repeats = null;//: Appointment.Repeat = {days: [], period: 1};
     if(repeat.length > 1){
@@ -39,7 +39,7 @@ export function AppointmentProvider({ children }: props) {
         period: 1, // repeat every 1 week
       };
     }
-    const newAppt = new Appointment(name, address, date, arrivalTime, eta, transport_type, repeat);
+    const newAppt = new Appointment(name, address, date, arrivalTime, eta, transport_type, starting_address, repeat);
     SetAppts(prev => [...prev, newAppt]);
   };
 

@@ -24,7 +24,10 @@ export default function Index() {
                         <Text style={{color: '#fff', fontSize: 20}}>{item.name}</Text> 
                         <Text style={{color: '#fff', fontSize: 14}}> @ {item.address}</Text>
                     </View>
-                    <Text style={{color: '#fff', fontSize: 24, textAlign:'right', paddingRight:20}}>{item.time}</Text>
+                    <View style = {{flexDirection:'column', paddingHorizontal:20}}>
+                      <Text style={{color: '#fff', fontSize: 24, textAlign:'right', paddingRight:20}}>{item.time}</Text>
+                      <Text style={{color: '#fff', fontSize: 12, textAlign:'right', paddingRight:20}}>{item.transit_time}</Text>
+                    </View>
                 </TouchableOpacity>
             </View>
           ))
