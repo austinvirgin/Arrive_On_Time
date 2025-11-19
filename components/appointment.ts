@@ -1,14 +1,4 @@
 
-// Code to handle internally making components
-export namespace Appointment{
-    // using namespace above bundles this below type with the Appointment namespace
-    export type Repeat =
-    {
-        days: string[], // mon,tue,wed,thu,fri,sat,sun
-        period: number, // period between repeats: repeat every 1 week, or every 2 weeks, etc.
-    }
-}
-
 export class Appointment{
     // everything public for now
     public name: string;
