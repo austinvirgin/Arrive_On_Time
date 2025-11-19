@@ -1,6 +1,5 @@
 import { useAppointmentContext } from "@/context/AppointmentContext";
-import asyncStorage from '@react-native-async-storage/async-storage';
-import { Stack, router } from "expo-router";
+import { Stack, router, useLocalSearchParams } from "expo-router";
 import React, { useState } from "react";
 import {
   FlatList,
@@ -13,6 +12,8 @@ import {
   TouchableOpacity,
   View
 } from "react-native";
+import MaskInput from "react-native-mask-input";
+import { calculateTime } from "../backend/backend";
 
 const DAYS = [
   { id: "sun", label: "Sunday" },
@@ -25,17 +26,35 @@ const DAYS = [
 ];
 
 export default function CreateAppointment() {
-  const { appointments, addAppt } = useAppointmentContext(); // this allows persistent appointment data across screens
-  const [name, setName] = useState("");
-  const [address, setAddress] = useState("");
-  const [arrivalTime, setArrivalTime] = useState("");
-  const [arrivalPeriod, setArrivalPeriod] = useState<"AM" | "PM" | "">("");
-  const [isRepeating, setIsRepeating] = useState(false);
-  const [selectedDays, setSelectedDays] = useState<string[]>([]);
+    const { appointments, addAppt, removeAppt, modifyAppt } = useAppointmentContext(); // this allows persistent appointment data across screens
+    const params = useLocalSearchParams();
+    const appt = params.app_num; // this might be empty if app_num wasn't set by the appointment
+    let app_num: number = -1;
+    let repeat_days: string[] = []; // set a default blank list if this parameter doesn't exist
+    if (appt && !Array.isArray(appt))
+    {
+        app_num = parseInt(appt, 10); // convert to integer index
+        if (app_num > appointments.length)
+        {
+            app_num = -1
+        }
+    }
+    if (app_num >= 0)
+    {
+        repeat_days = appointments[app_num].repeat ?? []; // set a default blank list if this parameter doesn't exist
+  }
+  const [name, setName] = app_num >= 0? useState(appointments[app_num].name) : useState("") ;
+  const [address, setAddress] = app_num >= 0? useState(appointments[app_num].address) : useState("");
+  const [arrivalTime, setArrivalTime] = app_num >= 0? useState(appointments[app_num].time.split(" ")[0]) : useState("");
+  const [arrivalPeriod, setArrivalPeriod] = app_num >= 0? useState(appointments[app_num].time.split(" ")[1].toUpperCase()) : useState<"AM" | "PM" | "">("");
+  const [isRepeating, setIsRepeating] = app_num >= 0? useState(repeat_days.length > 0) : useState(false);
+  const [selectedDays, setSelectedDays] = app_num >= 0? useState<string[]>(repeat_days) : useState<string[]>([]);
   const [daysModalVisible, setDaysModalVisible] = useState(false);
+  const [startingLocation, setStartingLocation] = app_num >= 0? useState(appointments[app_num].starting_address): useState("");
   const [periodModalVisible, setPeriodModalVisible] = useState(false);
-  const [estimatedTravelTime, setEstimatedTravelTime] = useState("");
-  const [date, setDate] = useState("");
+  const [travelType, SetTravelType] = app_num >= 0? useState(appointments[app_num].transport_type) : useState("");
+  const [travelTypeVisible, setTravelTypeVisible] = useState(false);
+  const [date, setDate] = app_num >= 0? useState(appointments[app_num].date) : useState("");
 
   const toggleDay = (dayId: string) => {
     if (selectedDays.includes(dayId)) {
@@ -65,6 +84,20 @@ export default function CreateAppointment() {
       .map((d) => d.label)
       .join(", ");
 
+  // code to allow for the delete button to appear (requires that this is a specific index of the appointments list)
+  let can_delete = null;
+  if(app_num >= 0)
+  {
+    can_delete = (
+        <TouchableOpacity style = {styles.deleteButton} onPress={() =>{
+            removeAppt(app_num);
+            router.replace('..'); // replace this page with the previous page, rerendered
+        }}>
+            <Text style={styles.deleteText}>Delete</Text>
+        </TouchableOpacity>
+    );
+  }
+
   return (
     <>
       <Stack.Screen options={{ title: "Create Appointment" }} />
@@ -72,7 +105,12 @@ export default function CreateAppointment() {
         <ScrollView contentContainerStyle={styles.container}>
           <View style={styles.inputBox}>
             <Text style={styles.label}>Appointment Name:</Text>
-            <TextInput value={name} onChangeText={setName} placeholder="Enter appointment name" style={styles.input} />
+            <TextInput value={name} onChangeText={setName} placeholder="Enter appointment name" style={styles.input}/>
+          </View>
+
+          <View style={styles.inputBox}>
+            <Text style={styles.label}>Starting Address:</Text>
+            <TextInput value={startingLocation} onChangeText={setStartingLocation} placeholder="Enter starting address" style={styles.input}/>
           </View>
 
           <View style={styles.inputBox}>
@@ -83,11 +121,13 @@ export default function CreateAppointment() {
           <View style={styles.inputBox}>
             <Text style={styles.label}>Arrival time:</Text>
             <View style={styles.row}>
-              <TextInput
+              <MaskInput
                 value={arrivalTime}
                 onChangeText={setArrivalTime}
                 placeholder="e.g. 12:15"
                 style={[styles.input, { flex: 1 }]}
+                keyboardType="numeric"
+                mask={[/\d/, /\d/, ":", /\d/, /\d/]}
               />
               <TouchableOpacity style={styles.periodDropdown} onPress={() => setPeriodModalVisible(true)}>
                 <Text style={styles.dropdownText}>{arrivalPeriod || "AM/PM"}</Text>
@@ -113,22 +153,32 @@ export default function CreateAppointment() {
           </View>
 
           <View style={styles.inputBox}>
-            <Text style={styles.label}>Estimated travel time:</Text>
-            <TextInput value={estimatedTravelTime} onChangeText={setEstimatedTravelTime} placeholder="e.g. 15 min" style={styles.input} />
-          </View>
-
-          <View style={styles.inputBox}>
             <Text style={styles.label}>Date:</Text>
             <TextInput value={date} onChangeText={setDate} placeholder="Select date" style={styles.input} />
           </View>
 
-          <TouchableOpacity style={styles.saveButton} onPress={() => {
-              addAppt(name, address, date, arrivalTime + arrivalPeriod.toLowerCase(), selectedDays); // make an appointment with this screen's data
-              asyncStorage.setItem('appointments', JSON.stringify(appointments));
-              router.back(); // then go back to the main index.tsx screen
+          <View style={styles.inputBox}>
+            <TouchableOpacity onPress={() => setTravelTypeVisible(true)}>
+              <Text style={styles.travelType}>{travelType || "Travel Type"}</Text>
+            </TouchableOpacity>
+          </View> 
+          
+          <TouchableOpacity style={styles.saveButton} onPress={async() => {
+              const time = `${arrivalTime} ${arrivalPeriod}`
+              const eta = await calculateTime(startingLocation, address, travelType.toLowerCase(), time)
+              if (app_num >= 0)
+              {
+                modifyAppt(app_num, name, address, date, time, eta, travelType, startingLocation, selectedDays);
+              }
+              else{
+                addAppt(name, address, date, time, eta, travelType, startingLocation, selectedDays); // make an appointment with this screen's data
+                asyncStorage.setItem('appointments', JSON.stringify(appointments));
+              }
+              router.replace('..'); // then go back to the main index.tsx screen
             }}>
             <Text style={styles.saveText}>Save</Text>
           </TouchableOpacity>
+          {can_delete}
         </ScrollView>
 
         <Modal visible={daysModalVisible} animationType="slide" transparent>
@@ -160,6 +210,28 @@ export default function CreateAppointment() {
               </Pressable>
               <View style={styles.modalButtons}>
                 <TouchableOpacity onPress={() => setPeriodModalVisible(false)} style={styles.modalButton}>
+                  <Text style={styles.modalButtonText}>Close</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
+
+        <Modal visible={travelTypeVisible} animationType="fade" transparent>
+          <View style={styles.modalBackdrop}>
+            <View style={styles.modalContentSmall}>
+              <Text style={styles.modalTitle}>Travel Type</Text>
+              <Pressable onPress={() => { SetTravelType("Walking"); setTravelTypeVisible(false); }} style={styles.optionRow}>
+                <Text style={styles.optionLabel}>Walking</Text>
+              </Pressable>
+              <Pressable onPress={() => { SetTravelType('Driving'); setTravelTypeVisible(false); }} style={styles.optionRow}>
+                <Text style={styles.optionLabel}>Driving</Text>
+              </Pressable>
+              <Pressable onPress={() => { SetTravelType('Biking'); setTravelTypeVisible(false); }} style={styles.optionRow}>
+                <Text style={styles.optionLabel}>Biking</Text>
+              </Pressable>
+              <View style={styles.modalButtons}>
+                <TouchableOpacity onPress={() => setTravelTypeVisible(false)} style={styles.modalButton}>
                   <Text style={styles.modalButtonText}>Close</Text>
                 </TouchableOpacity>
               </View>
@@ -264,6 +336,17 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "600",
   },
+  deleteButton: {
+    marginTop: 10,
+    backgroundColor: "#ddd",
+    paddingVertical: 5,
+    borderRadius: 6,
+    alignItems: "center",
+  },
+  deleteText:{
+    color: "#f00",
+    textDecorationLine: "underline"
+  },
   modalBackdrop: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.35)",
@@ -340,5 +423,8 @@ const styles = StyleSheet.create({
   },
   modalButtonTextSecondary: {
     color: "#333",
+  },
+  travelType: {
+    textAlign: "center"
   },
 });
