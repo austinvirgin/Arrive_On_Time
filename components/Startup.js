@@ -7,7 +7,12 @@ export default function Startup(addAppt) {
             const parsedData = JSON.parse(data);
             parsedData.forEach((appt) => { 
                 // converted parsed into appointments
-                addAppt(appt.name, appt.address, appt.date, appt.arrivalTime, appt.repeat);
+                addAppt(appt.name, 
+                    appt.address, 
+                    appt.date, 
+                    appt.arrivalTime,
+                    []
+                );
             });
         }
     });
