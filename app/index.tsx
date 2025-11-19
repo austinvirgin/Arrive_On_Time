@@ -1,80 +1,99 @@
 import { Appointment } from '@/components/appointment';
-import { NotificationService } from '@/components/NotificationService';
-import { useState } from "react";
-import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
-import Menubar from "../components/Menubar";
+import { useAppointmentContext } from '@/context/AppointmentContext';
+import { useRouter } from "expo-router";
+import React from "react";
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export default function Index() {
-  const [appts, makeAppt] = useState<Appointment[]>([]); // initialize an empty list of appointments. Use makeAppt() to modify the list
-  const service = new NotificationService();
-  const sendNotif = async () => {
-    await service.sendPush(
-    "Greetings!",
-    "This notification was sent with one call."
-)
-  }
-  const AddAppt = () => {
-    // This function adds an appointment to the list
-
-    // define its repeat pattern, or instead make repeat = null if there is no repeat to this appointment
-    const repeats: Appointment.Repeat = {
-      days:['mon','wed','fri'], // days of the week this appointment happens
-      period:1, // repeat every 1 week
-    }
-    // make new appointment (including supplying the function that allows for adding an appointment to the appts list: "makeAppt")
-    const newAppt = new Appointment("class","STC", 'Oct 11', '11am', repeats, makeAppt); // appointment info here
-  }
-  
+  const router = useRouter();
+  const { appointments, addAppt, removeAppt, modifyAppt } = useAppointmentContext(); // this enables persistent appointment data across screens
   return (
-    <View style={styles.root}>
-      <Menubar menuTitle="Date/Time:" />
-      <View style={styles.center}>
-        <View style ={styles.buttonContainer}>
-        <Pressable style = {styles.button} onPress={AddAppt}>
-          <Text style={styles.buttonLabel}>Create Appointment</Text>
-        </Pressable>
-      </View> 
-      <Text>Known Appointments:</Text>
-      {// below is how to display each item in the list. Define data = {list}, 
-        // renderItem expects a function with 1 parameter, a placeholder name that will represent the current item of the list
-      }
-      <FlatList
-        data={appts}
-        renderItem={({ item }) => (
-          <Text style={{ fontSize: 18 }}>{item.getSummary()}</Text>
-        )}
-      />
-      </View>
+    <View style={styles.safe}>
+      <ScrollView contentContainerStyle={styles.container}>
+        <Text style = {styles.hintText}>Known Appointments:</Text>
+        {
+          appointments.map((item: Appointment, index: number) => (
+            <View style={{marginVertical:5}} key = {index}>
+                <TouchableOpacity style={styles.buttonContainer} activeOpacity={0.8} onPress={() => {
+                    router.push({
+                        pathname: "/create",
+                        params: {app_num: index}
+                    });
+                }}>
+                    <View style = {{flexDirection:'column', paddingHorizontal:20}}>
+                        <Text style={{color: '#fff', fontSize: 20}}>{item.name}</Text> 
+                        <Text style={{color: '#fff', fontSize: 14}}> @ {item.address}</Text>
+                    </View>
+                    <View style = {{flexDirection:'column', paddingHorizontal:20}}>
+                      <Text style={{color: '#fff', fontSize: 24, textAlign:'right', paddingRight:20}}>{item.time}</Text>
+                      <Text style={{color: '#fff', fontSize: 12, textAlign:'right', paddingRight:20}}>{item.transit_time}</Text>
+                    </View>
+                </TouchableOpacity>
+            </View>
+          ))
+        }
+      </ScrollView>
+
+      <TouchableOpacity style={styles.plusButton} activeOpacity={0.8} onPress={() => {
+          router.push("/create");
+        }}>
+        <Text style={styles.plusText}>+</Text>
+      </TouchableOpacity>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: "#fff" },
-  center: { flex: 1, justifyContent: "center", alignItems: "center" },
+  safe: { flex: 1, backgroundColor: "#efefef" },
+  container: {
+    padding: 24,
+    paddingBottom: 140
+  },
+  listSpace: {
+    height: 600,
+    backgroundColor: "transparent",
+    justifyContent: "center",
+    alignItems: "center"
+  },
+  hintText: {
+    color: "#bbb"
+  },
+  plusButton: {
+    position: "absolute",
+    right: 28,
+    bottom: 28,
+    width: 56,
+    height: 56,
+    borderRadius: 10,
+    backgroundColor: "#6f6f6f",
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+    elevation: 6
+  },
+  plusText: {
+    color: "#fff",
+    fontSize: 28,
+    lineHeight: 28
+  },
   buttonContainer: {
-    marginVertical: 20,
-    width: 320,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    backgroundColor: "#6f6f6f",
+    width: '100%',
     height: 68,
-    marginHorizontal: 20,
     alignItems: 'center',
-    justifyContent: 'center',
     padding: 3,
   },
   button: {
+    borderRadius: 10,
     width: '100%',
     height: '100%',
-    backgroundColor: '#fff',
-    borderWidth: 4, 
-    borderColor: '#3dff81ff', 
-    borderRadius: 18,
-    fontSize: 20,
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
-  },
-  buttonLabel: {
-    color: '#25292e',
-    fontSize: 16,
   },
 });
