@@ -1,22 +1,45 @@
-import React from "react";
-import { SafeAreaView, View, Text, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
+import { Appointment } from '@/components/appointment';
+import { useAppointmentContext } from '@/context/AppointmentContext';
 import { useRouter } from "expo-router";
+import React from "react";
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export default function Index() {
   const router = useRouter();
-
+  const { appointments, addAppt, removeAppt, modifyAppt } = useAppointmentContext(); // this enables persistent appointment data across screens
   return (
-    <SafeAreaView style={styles.safe}>
+    <View style={styles.safe}>
       <ScrollView contentContainerStyle={styles.container}>
-        <View style={styles.listSpace}>
-          <Text style={styles.hintText}>Appointments will show here</Text>
-        </View>
+        <Text style = {styles.hintText}>Known Appointments:</Text>
+        {
+          appointments.map((item: Appointment, index: number) => (
+            <View style={{marginVertical:5}} key = {index}>
+                <TouchableOpacity style={styles.buttonContainer} activeOpacity={0.8} onPress={() => {
+                    router.push({
+                        pathname: "/create",
+                        params: {app_num: index}
+                    });
+                }}>
+                    <View style = {{flexDirection:'column', paddingHorizontal:20}}>
+                        <Text style={{color: '#fff', fontSize: 20}}>{item.name}</Text> 
+                        <Text style={{color: '#fff', fontSize: 14}}> @ {item.address}</Text>
+                    </View>
+                    <View style = {{flexDirection:'column', paddingHorizontal:20}}>
+                      <Text style={{color: '#fff', fontSize: 24, textAlign:'right', paddingRight:20}}>{item.time}</Text>
+                      <Text style={{color: '#fff', fontSize: 12, textAlign:'right', paddingRight:20}}>{item.transit_time}</Text>
+                    </View>
+                </TouchableOpacity>
+            </View>
+          ))
+        }
       </ScrollView>
 
-      <TouchableOpacity style={styles.plusButton} activeOpacity={0.8} onPress={() => router.push("/create")}>
+      <TouchableOpacity style={styles.plusButton} activeOpacity={0.8} onPress={() => {
+          router.push("/create");
+        }}>
         <Text style={styles.plusText}>+</Text>
       </TouchableOpacity>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -55,5 +78,22 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 28,
     lineHeight: 28
-  }
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    backgroundColor: "#6f6f6f",
+    width: '100%',
+    height: 68,
+    alignItems: 'center',
+    padding: 3,
+  },
+  button: {
+    borderRadius: 10,
+    width: '100%',
+    height: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+  },
 });

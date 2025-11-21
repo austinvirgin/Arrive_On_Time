@@ -5,11 +5,10 @@ async function apiKeyCall() {
 }
 
 async function getETA(origin, destination, transportation_type = 'walking', key) {
-    console.log(`${origin} ${destination} ${transportation_type}`)
     // const mode = mapMode(transportation_type)
     const params = new URLSearchParams({
-        origins: `${origin}`,
-        destinations: `${destination}`,
+        origins: `${origin} rexburg`,
+        destinations: `${destination} rexburg`,
         mode: transportation_type,
         key
     })
@@ -22,6 +21,7 @@ async function getETA(origin, destination, transportation_type = 'walking', key)
 }
 
 export async function calculateTime(origin, destination, transportation_type, appointmentTime) {
+    console.log(`${origin} ${destination} ${transportation_type} ${appointmentTime}`);
     let api = await apiKeyCall()
     let time = new Time(appointmentTime)
     let minutes = await getETA(origin, destination, transportation_type, api)
@@ -47,11 +47,16 @@ class Time{
     }
 
     subtractTime(subtractedTime) {
-        this.minutes -= subtractedTime
+        this.minutes -= subtractedTime + 5
     }
 
     getTime(){
+        let small_num = ''
         const minutes = Math.floor(this.minutes % 60)
+        if (minutes < 10){
+            small_num = "0"
+        }
+
         const hours = Math.floor(this.minutes / 60)
         let type;
         if (hours >= 12) {
@@ -60,6 +65,6 @@ class Time{
         else {
             type = 'am'
         }
-        return `${hours}:${minutes} ${type}`;
+        return `${hours}:${small_num}${minutes} ${type}`;
     }
 }
