@@ -31,7 +31,7 @@ export async function calculateTime(origin, destination, transportation_type, ap
 
 class Time{
 
-    constructor(time){
+    constructor(time, wiggle_room = 2){
         let [ hours, minutes_tod ] = time.split(":");
         hours = Number(hours)
         let [minutes, tod] = minutes_tod.split(" ")
