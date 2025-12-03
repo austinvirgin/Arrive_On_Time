@@ -31,14 +31,6 @@ export function AppointmentProvider({ children }: props) {
   };
   const addAppt = (name: string, address: string, date: string, 
     arrivalTime: string, eta: string, transport_type: string, starting_address: string, repeat: string[]) => {
-    // define its repeat pattern
-    let repeats = null;//: Appointment.Repeat = {days: [], period: 1};
-    if(repeat.length > 1){
-      repeats = {
-        days: repeat, // days of the week this appointment happens
-        period: 1, // repeat every 1 week
-      };
-    }
     const newAppt = new Appointment(name, address, date, arrivalTime, eta, transport_type, starting_address, repeat);
     SetAppts(prev => [...prev, newAppt]);
   };

@@ -13,7 +13,8 @@ export default function Index() {
   
   const router = useRouter();
   const { appointments, addAppt, removeAppt, modifyAppt } = useAppointmentContext(); // this enables persistent appointment data across screens
-  Startup(addAppt);
+  Startup();
+  alert(appointments.length);
   return (
     <View style={styles.safe}>
       <ScrollView contentContainerStyle={styles.container}>
