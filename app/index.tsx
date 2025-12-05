@@ -1,7 +1,7 @@
 import { Appointment } from '@/components/appointment';
 import { NotificationService } from '@/components/NotificationService';
 import { useAppointmentContext } from '@/context/AppointmentContext';
-import { useRouter } from "expo-router";
+import { useRouter, Stack } from "expo-router";
 import React from "react";
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
@@ -10,45 +10,41 @@ export default function Index() {
   const { appointments, addAppt, removeAppt, modifyAppt } = useAppointmentContext(); // this enables persistent appointment data across screens
   const ns = new NotificationService();
   return (
-    <View style={styles.safe}>
-      <ScrollView contentContainerStyle={styles.container}>
-        <Text style = {styles.hintText}>Known Appointments:</Text>
-        {
-          appointments.map((item: Appointment, index: number) => (
-            <View style={{marginVertical:5}} key = {index}>
-              {/* <TouchableOpacity
-  onPress={() => {
-    ns.sendPush("Test", "Hello world", new Date(Date.now() + 60000));
-  }}
->
-  <Text>Schedule Appointment Reminder</Text>
-</TouchableOpacity> */}
-                <TouchableOpacity style={styles.buttonContainer} activeOpacity={0.8} onPress={() => {
-                    router.push({
-                        pathname: "/create",
-                        params: {app_num: index}
-                    });
-                }}>
-                    <View style = {{flexDirection:'column', paddingHorizontal:20}}>
-                        <Text style={{color: '#fff', fontSize: 20}}>{item.name}</Text> 
-                        <Text style={{color: '#fff', fontSize: 14}}> @ {item.address}</Text>
-                    </View>
-                    <View style = {{flexDirection:'column', paddingHorizontal:20}}>
-                      <Text style={{color: '#fff', fontSize: 24, textAlign:'right', paddingRight:20}}>{item.time}</Text>
-                      <Text style={{color: '#fff', fontSize: 12, textAlign:'right', paddingRight:20}}>{item.transit_time}</Text>
-                    </View>
-                </TouchableOpacity>
-            </View>
-          ))
-        }
-      </ScrollView>
+    <>
+      <Stack.Screen options={{ title: "My Appointments" }} />
+      <View style={styles.safe}>
+        <ScrollView contentContainerStyle={styles.container}>
+          <Text style = {styles.hintText}>Known Appointments:</Text>
+          {
+            appointments.map((item: Appointment, index: number) => (
+              <View style={{marginVertical:5}} key = {index}>
+                  <TouchableOpacity style={styles.buttonContainer} activeOpacity={0.8} onPress={() => {
+                      router.push({
+                          pathname: "/create",
+                          params: {app_num: index}
+                      });
+                  }}>
+                      <View style = {{flexDirection:'column', paddingHorizontal:20}}>
+                          <Text style={{color: '#fff', fontSize: 20}}>{item.name}</Text>
+                          <Text style={{color: '#fff', fontSize: 14}}> @ {item.address}</Text>
+                      </View>
+                      <View style = {{flexDirection:'column', paddingHorizontal:20}}>
+                        <Text style={{color: '#fff', fontSize: 24, textAlign:'right', paddingRight:20}}>{item.time}</Text>
+                        <Text style={{color: '#fff', fontSize: 12, textAlign:'right', paddingRight:20}}>{item.transit_time}</Text>
+                      </View>
+                  </TouchableOpacity>
+              </View>
+            ))
+          }
+        </ScrollView>
 
-      <TouchableOpacity style={styles.plusButton} activeOpacity={0.8} onPress={() => {
-          router.push("/create");
-        }}>
-        <Text style={styles.plusText}>+</Text>
-      </TouchableOpacity>
-    </View>
+        <TouchableOpacity style={styles.plusButton} activeOpacity={0.8} onPress={() => {
+            router.push("/create");
+          }}>
+          <Text style={styles.plusText}>+</Text>
+        </TouchableOpacity>
+      </View>
+    </>
   );
 }
 
