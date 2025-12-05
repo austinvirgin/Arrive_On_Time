@@ -173,8 +173,8 @@ export default function CreateAppointment() {
               }
               else{
                 addAppt(name, address, date, time, eta, travelType, startingLocation, selectedDays); // make an appointment with this screen's data
-                asyncStorage.setItem('appointments', JSON.stringify(appointments));
               }
+              asyncStorage.setItem('appointments', JSON.stringify(appointments));
               router.replace('..'); // then go back to the main index.tsx screen
             }}>
             <Text style={styles.saveText}>Save</Text>

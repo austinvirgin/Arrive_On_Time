@@ -32,7 +32,7 @@ export function AppointmentProvider({ children }: props) {
   const addAppt = (name: string, address: string, date: string, 
     arrivalTime: string, eta: string, transport_type: string, starting_address: string, repeat: string[]) => {
     const newAppt = new Appointment(name, address, date, arrivalTime, eta, transport_type, starting_address, repeat);
-    appointments.push(new Appointment(name, address, date, arrivalTime, eta, transport_type, starting_address, repeat));
+    //appointments.push(new Appointment(name, address, date, arrivalTime, eta, transport_type, starting_address, repeat));
     SetAppts(prev => [...prev, newAppt]);
   };
 
