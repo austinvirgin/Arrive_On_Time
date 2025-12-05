@@ -169,12 +169,11 @@ export default function CreateAppointment() {
               const eta = await calculateTime(startingLocation, address, travelType.toLowerCase(), time)
               if (app_num >= 0)
               {
-                modifyAppt(app_num, name, address, date, time, eta, travelType, startingLocation, selectedDays);
+                asyncStorage.setItem('appointments', JSON.stringify(modifyAppt(app_num, name, address, date, time, eta, travelType, startingLocation, selectedDays)));
               }
               else{
-                addAppt(name, address, date, time, eta, travelType, startingLocation, selectedDays); // make an appointment with this screen's data
+                asyncStorage.setItem('appointments', JSON.stringify(addAppt(name, address, date, time, eta, travelType, startingLocation, selectedDays))); // make an appointment with this screen's data
               }
-              asyncStorage.setItem('appointments', JSON.stringify(appointments));
               router.replace('..'); // then go back to the main index.tsx screen
             }}>
             <Text style={styles.saveText}>Save</Text>

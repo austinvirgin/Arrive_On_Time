@@ -6,14 +6,17 @@ import React, { useState } from "react";
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 var appointmentsList : Appointment[] = []; // initialize an empty list of appointments
-
+var loaded = false;
 export default function Index() {
 
   const [appts, makeAppt] = useState<Appointment[]>([]); // initialize an empty list of appointments. Use makeAppt() to modify the list
   
   const router = useRouter();
   const { appointments, addAppt, removeAppt, modifyAppt } = useAppointmentContext(); // this enables persistent appointment data across screens
-  Startup();
+  if (!loaded){
+    Startup();
+    loaded = true;
+  }
   alert(appointments.length);
   return (
     <View style={styles.safe}>
