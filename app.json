@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Arrive_On_Time",
-    "slug": "Arrive_On_Time",
+    "slug": "arriveontime",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -19,7 +19,8 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.cameronharward.arriveontime"
     },
     "web": {
       "output": "static",
@@ -44,6 +45,13 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "0013c313-7b35-4a96-a2f6-aeb725affe78"
+      }
+    },
+    "owner": "cameronharward"
   }
 }
