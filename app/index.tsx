@@ -1,4 +1,5 @@
 import { Appointment } from '@/components/appointment';
+import { NotificationService } from '@/components/NotificationService';
 import Startup from "@/components/Startup";
 import { useAppointmentContext } from '@/context/AppointmentContext';
 import { useRouter } from "expo-router";
@@ -13,6 +14,7 @@ export default function Index() {
   
   const router = useRouter();
   const { appointments, addAppt, removeAppt, modifyAppt } = useAppointmentContext(); // this enables persistent appointment data across screens
+  const ns = new NotificationService();
   if (!loaded){
     Startup();
     loaded = true;
@@ -25,6 +27,13 @@ export default function Index() {
         {
           appointments.map((item: Appointment, index: number) => (
             <View style={{marginVertical:5}} key = {index}>
+              {/* <TouchableOpacity
+  onPress={() => {
+    ns.sendPush("Test", "Hello world", new Date(Date.now() + 60000));
+  }}
+>
+  <Text>Schedule Appointment Reminder</Text>
+</TouchableOpacity> */}
                 <TouchableOpacity style={styles.buttonContainer} activeOpacity={0.8} onPress={() => {
                     router.push({
                         pathname: "/create",
