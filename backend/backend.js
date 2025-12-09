@@ -57,7 +57,6 @@ class Time{
             small_num = "0"
         }
 
-        const hours = Math.floor(this.minutes / 60)
         let type;
         if (hours >= 12) {
             type = 'pm'
@@ -65,6 +64,9 @@ class Time{
         else {
             type = 'am'
         }
+
+        const hours = Math.floor(this.minutes / 60)
+        
         return `${hours}:${small_num}${minutes} ${type}`;
     }
 }
