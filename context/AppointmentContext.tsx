@@ -10,6 +10,7 @@ interface AppointmentContextType{
     removeAppt: (index: number) => void;
     modifyAppt: (index:number, name: string, address: string, date: string, 
         arrivalTime: string, eta: string, transport_type: string, starting_address: string, repeat: string[]) => void;
+    loadAppts: (parsed_json_appts: any) => void; // <---- this is the new line that allows appointments to be loaded in one single sweep
 }
 
 export const AppointmentContext = createContext<AppointmentContextType | undefined>(undefined); // allows sharing data across components
@@ -48,9 +49,23 @@ export function AppointmentProvider({ children }: props) {
         return new_appts_list; // return the updated appointments list
     };
 
+    const loadAppts = (appts_parsed_json: any) =>
+    {
+        let appts : Appointment[] = []
+        appts_parsed_json.forEach((appt: any) => { 
+            // format into an appointment
+            const newAppt = new Appointment(appt.name, 
+                appt.address, appt.date, appt.time, appt.transit_time,
+                appt.transport_type, appt.starting_address, appt.repeat);
+            appts = [... appts, newAppt]; // add to appts list
+            console.log("load appt.");
+        });
+        SetAppts(appts); // set appts
+    }
+
     // return the XML information for the app
     return (
-        <AppointmentContext.Provider value={{ appointments, addAppt, removeAppt, modifyAppt }}>
+        <AppointmentContext.Provider value={{ appointments, addAppt, removeAppt, modifyAppt, loadAppts }}>
             {children}
         </AppointmentContext.Provider>
     );
