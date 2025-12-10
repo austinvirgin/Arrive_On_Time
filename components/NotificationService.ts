@@ -142,6 +142,7 @@ export class NotificationService {
     });
 
     console.log("📨 Notification scheduled. ID:", id, "Trigger:", trigger);
+    return id;
   }
 
   /**
