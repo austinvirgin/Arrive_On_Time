@@ -50,7 +50,6 @@ export default function CreateAppointment() {
   const [arrivalPeriod, setArrivalPeriod] = app_num >= 0 ? useState(appointments[app_num].time.split(" ")[1].toUpperCase()) : useState<"AM" | "PM" | "">("");
   const [isRepeating, setIsRepeating] = app_num >= 0 ? useState(repeat_days.length > 0) : useState(false);
   const [selectedDays, setSelectedDays] = app_num >= 0 ? useState<string[]>(repeat_days) : useState<string[]>([]);
-  const [extraTime, setExtraTime] = useState("5");
   const [daysModalVisible, setDaysModalVisible] = useState(false);
   const [startingLocation, setStartingLocation] = app_num >= 0 ? useState(appointments[app_num].starting_address) : useState("");
   const [periodModalVisible, setPeriodModalVisible] = useState(false);
@@ -137,17 +136,6 @@ export default function CreateAppointment() {
                 </View>
               </View>
 
-              <View style={styles.inputBox}>
-                <Text style={styles.label}>Extra Time</Text>
-                <View style={styles.inputBox}>
-                  <MaskInput
-                  value={extraTime}
-                  onChangeText={setExtraTime}
-                  keyboardType="numeric"
-                  />
-                </View>
-              </View>
-
               <View style={styles.row}>
                 <Pressable
                   onPress={() => {
@@ -186,8 +174,7 @@ export default function CreateAppointment() {
                 style={styles.saveButton}
                 onPress={async () => {
                   const time = `${arrivalTime} ${arrivalPeriod}`;
-                  console.log(arrivalPeriod)
-                  const eta = await calculateTime(startingLocation, address, travelType.toLowerCase(), arrivalTime, arrivalPeriod, extraTime);
+                  const eta = await calculateTime(startingLocation, address, travelType.toLowerCase(), time);
                   if (app_num >= 0) {
                     modifyAppt(app_num, name, address, date, time, eta, travelType, startingLocation, selectedDays);
                   } else {

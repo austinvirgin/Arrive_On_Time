@@ -20,13 +20,12 @@ async function getETA(origin, destination, transportation_type = 'walking', key)
     return seconds / 60
 }
 
-export async function calculateTime(origin, destination, transportation_type, appointmentTime, appointmentPeriod = "PM", extra_time = "5") {
-    appointmentTime = `${appointmentTime} ${appointmentPeriod}`
+export async function calculateTime(origin, destination, transportation_type, appointmentTime) {
     console.log(`${origin} ${destination} ${transportation_type} ${appointmentTime}`);
     let api = await apiKeyCall()
     let time = new Time(appointmentTime)
     let minutes = await getETA(origin, destination, transportation_type, api)
-    time.subtractTime(minutes, extra_time)
+    time.subtractTime(minutes)
     return time.getTime(appointmentTime);
 }
 
@@ -36,25 +35,19 @@ class Time{
         let [ hours, minutes_tod ] = time.split(":");
         hours = Number(hours)
         let [minutes, tod] = minutes_tod.split(" ")
-        console.log(minutes_tod.split(" "))
         minutes = Number(minutes)
-        if (hours > 12){
-            tod = 'pm'
-            hours -= 12
-        }
-        if (tod === "pm" && hours !== 12){
-            console.log(`${hours}`)
+        if (tod == "pm" && hours != 12){
             hours += 12;
         }
-        if (tod == "am" && hours == 12){
+        else if (tod == "am" && hours == 12){
             hours = 0;
         }
 
         this.minutes = minutes + hours * 60
     }
 
-    subtractTime(subtractedTime, extra_time) {
-        this.minutes -= subtractedTime + Number(extra_time)
+    subtractTime(subtractedTime) {
+        this.minutes -= subtractedTime + 5
     }
 
     getTime(){
@@ -64,10 +57,6 @@ class Time{
             small_num = "0"
         }
 
-        let hours = Math.floor(this.minutes / 60)
-
-        console.log(hours)
-
         let type;
         if (hours >= 12) {
             type = 'pm'
@@ -76,10 +65,7 @@ class Time{
             type = 'am'
         }
 
-        if (hours > 12){
-            console.log(`${hours}${type}`)
-            hours = hours - 12
-        }
+        const hours = Math.floor(this.minutes / 60)
         
         return `${hours}:${small_num}${minutes} ${type}`;
     }
