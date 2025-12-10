@@ -36,7 +36,6 @@ class Time{
         let [ hours, minutes_tod ] = time.split(":");
         hours = Number(hours)
         let [minutes, tod] = minutes_tod.split(" ")
-        console.log(minutes_tod.split(" "))
         minutes = Number(minutes)
         if (hours > 12){
             tod = 'pm'
