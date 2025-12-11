@@ -8,7 +8,8 @@ export function GetDirections(destination, mode = 'driving'){
         return Linking.openURL(`http://maps.apple.com/?daddr=${enc(destination)}&dirflg=${modeFlag(mode)}`);
     }
     else {
-        return Linking.openURL(`google.navigation:q=${enc(destination)}&mode=${modeFlag(mode, type = "google")}`);
+        const os = "google"
+        return Linking.openURL(`google.navigation:q=${enc(destination)}&mode=${modeFlag(mode, os)}`);
     }
 }
 
