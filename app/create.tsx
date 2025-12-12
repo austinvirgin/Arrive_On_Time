@@ -215,8 +215,7 @@ export default function CreateAppointment() {
                 style={styles.saveButton}
                 onPress={async () => {
                   const time = `${arrivalTime} ${arrivalPeriod}`;
-                  console.log(arrivalPeriod);
-                  const eta = await calculateTime(startingLocation, address, travelType.toLowerCase(), arrivalTime, arrivalPeriod, extraTime);
+                  const eta = await calculateTime(startingLocation, address, travelType.toLowerCase(), arrivalTime, arrivalPeriod.toLowerCase(), extraTime);
                   if (app_num >= 0) {
                     modifyAppt(app_num, name, address, date, time, eta, travelType, startingLocation, selectedDays);
                   } else {
