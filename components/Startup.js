@@ -1,5 +1,5 @@
 import asyncStorage from '@react-native-async-storage/async-storage';
-import { useAppointmentContext } from "../context/AppointmentContext";
+import { loadAppts, useAppointmentContext } from '../context/AppointmentContext';
 
 export default function Startup() {
     const { appointments, addAppt, removeAppt, modifyAppt } = useAppointmentContext(); // this enables persistent appointment data across screens
