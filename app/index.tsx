@@ -1,8 +1,9 @@
 import { Appointment } from '@/components/appointment';
 import { NotificationService } from '@/components/NotificationService';
+import Startup from "@/components/Startup";
 import { useAppointmentContext } from '@/context/AppointmentContext';
-import { useRouter, Stack } from "expo-router";
-import React from "react";
+import { Stack, useRouter } from "expo-router";
+import React, { useState } from "react";
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { GetDirections } from "../backend/navigateThere";
 
@@ -15,10 +16,20 @@ import { GetDirections } from "../backend/navigateThere";
   - Styling improved to look clean and professional; functionality unchanged
 */
 
+var appointmentsList : Appointment[] = []; // initialize an empty list of appointments
+var loaded = false;
 export default function Index() {
+
+  const [appts, makeAppt] = useState<Appointment[]>([]); // initialize an empty list of appointments. Use makeAppt() to modify the list
+  
   const router = useRouter();
   const { appointments } = useAppointmentContext();
   const ns = new NotificationService();
+  if (!loaded){
+    Startup();
+    loaded = true;
+  }
+  alert(appointments.length);
 
   return (
     <>

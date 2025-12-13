@@ -1,20 +1,21 @@
 import { useAppointmentContext } from "@/context/AppointmentContext";
+import asyncStorage from "@react-native-async-storage/async-storage";
 import { Stack, router, useLocalSearchParams } from "expo-router";
-import React, { useState, useRef } from "react";
+import React, { useRef, useState } from "react";
 import {
   FlatList,
+  Keyboard,
+  KeyboardAvoidingView,
   Modal,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  View,
-  KeyboardAvoidingView,
-  Platform,
-  Keyboard,
   TouchableWithoutFeedback,
+  View,
 } from "react-native";
 import MaskInput from "react-native-mask-input";
 import { calculateTime } from "../backend/backend";
@@ -217,9 +218,9 @@ export default function CreateAppointment() {
                   const time = `${arrivalTime} ${arrivalPeriod}`;
                   const eta = await calculateTime(startingLocation, address, travelType.toLowerCase(), arrivalTime, arrivalPeriod.toLowerCase(), extraTime);
                   if (app_num >= 0) {
-                    modifyAppt(app_num, name, address, date, time, eta, travelType, startingLocation, selectedDays);
+                    var _ = await asyncStorage.setItem('appointments', JSON.stringify(modifyAppt(app_num, name, address, date, time, eta, travelType, startingLocation, selectedDays)));
                   } else {
-                    addAppt(name, address, date, time, eta, travelType, startingLocation, selectedDays);
+                    var _ = await asyncStorage.setItem('appointments', JSON.stringify(addAppt(name, address, date, time, eta, travelType, startingLocation, selectedDays))); // make an appointment with this screen's data
                   }
                   router.replace("..");
                 }}

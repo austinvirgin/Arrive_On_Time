@@ -1,3 +1,4 @@
+
 export class Appointment{
     // everything public for now
     public name: string;
