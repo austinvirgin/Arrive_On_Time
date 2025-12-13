@@ -16,15 +16,6 @@ import { GetDirections } from "../backend/navigateThere";
   - Styling improved to look clean and professional; functionality unchanged
 */
 
-/*
-  Index screen (My Appointments)
-  - Shows a scrollable list of appointment "cards"
-  - Tapping a card opens the Create/Edit screen for that appointment
-  - A separate "Navigate There" button opens external directions
-  - Floating + button opens the Create screen to add a new appointment
-  - Styling improved to look clean and professional; functionality unchanged
-*/
-
 var appointmentsList : Appointment[] = []; // initialize an empty list of appointments
 var loaded = false;
 export default function Index() {
