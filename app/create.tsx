@@ -2,19 +2,19 @@ import { useAppointmentContext } from "@/context/AppointmentContext";
 import { Stack, router, useLocalSearchParams } from "expo-router";
 import React, { useState, useRef } from "react";
 import {
-  FlatList,
-  Modal,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-  KeyboardAvoidingView,
-  Platform,
-  Keyboard,
-  TouchableWithoutFeedback,
+    FlatList,
+    Keyboard,
+    KeyboardAvoidingView,
+    Modal,
+    Platform,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    TouchableWithoutFeedback,
+    View,
 } from "react-native";
 import MaskInput from "react-native-mask-input";
 import { calculateTime } from "../backend/backend";
