@@ -1,3 +1,4 @@
+import ns from '@/components/NotificationService';
 export class Appointment{
     // everything public for now
     public name: string;
@@ -22,6 +23,7 @@ export class Appointment{
         this.transit_time = eta; // assume a 10 minute transit time for now
         this.transport_type = transport_type; // string to pass to Google Maps API
         this.starting_address = starting_address
+        ns.sendPush("Time to go!", `Your appointment: ${name}. You have ${time} minutes to get there by ${transport_type}`, ns.createDateFromAppointment(this))
     };
 
     // a string that contains relevant information about this appointment
